@@ -5,12 +5,10 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from . import Base
+from .customer import Customer, Event
 
 
 class User(Base):
@@ -25,6 +23,8 @@ class User(Base):
     phone: Mapped[Optional[str]]
     team_id: Mapped[int] = mapped_column(ForeignKey("team_table.id"))
     team: Mapped["Team"] = relationship(back_populates="members")
+    customers: Mapped[List["Customer"]] = relationship(back_populates="sales_contact")
+    managed_events: Mapped[List["Event"]] = relationship(back_populates="support_contact")
 
 
 class Team(Base):
