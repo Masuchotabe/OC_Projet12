@@ -6,6 +6,9 @@ name = "pypi"
 [packages]
 sqlalchemy = "*"
 pytest = "*"
+mysqlclient = "*"
+passlib = {extras = ["argon2"], version = "*"}
+alembic = "*"
 
 [dev-packages]
 
