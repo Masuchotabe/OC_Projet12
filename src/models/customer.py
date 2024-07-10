@@ -18,10 +18,10 @@ class Customer(Base):
     __tablename__ = "customer_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(30))
-    email: Mapped[str] = mapped_column(String(30))
-    phone: Mapped[Optional[str]] = mapped_column(String(30))
-    company_name: Mapped[str] = mapped_column(String(30))
+    name: Mapped[str] = mapped_column(String(50))
+    email: Mapped[str] = mapped_column(String(100))
+    phone: Mapped[Optional[str]] = mapped_column(String(20))
+    company_name: Mapped[str] = mapped_column(String(80))
     date_created: Mapped[datetime]
     date_modified: Mapped[datetime]
     sales_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
@@ -53,9 +53,9 @@ class Event(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     event_start_date: Mapped[datetime]
     event_end_date: Mapped[datetime]
-    location: Mapped[str] = mapped_column(String(30))
+    location: Mapped[str] = mapped_column(String(250))
     attendees: Mapped[int]
-    notes: Mapped[str] = mapped_column(String(30))
+    notes: Mapped[str] = mapped_column(String(1000))
     contract_id: Mapped[int] = mapped_column(ForeignKey("contract_table.id"))
     contract: Mapped["Contract"] = relationship(back_populates="events")
     support_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))

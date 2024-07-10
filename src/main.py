@@ -2,8 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from src.controllers.user import create_team
-from src.models.user import *
-from src.models.customer import *
+from src.models import *
+
 
 
 # engine = create_engine("sqlite://", echo=True)
