@@ -5,22 +5,24 @@ from sqlalchemy.orm import Session
 
 from src.database import engine
 
-
 def create_user(user_data):
     """Création du user"""
+
     with Session(engine) as session:
 
         password_hash = argon2.hash(user_data['password'])
-        new_user = User(username=user_data.get('username'),
-                        email=user_data.get('email'),
+        new_user = User(username=user_data['username'],
+                        email=user_data['email'],
                         password=password_hash,
                         first_name=user_data.get('first_name'),
                         last_name=user_data.get('last_name'),
                         phone=user_data.get('phone'),
-                        team_id=user_data.get('team_id')
+                        team_id=user_data['team_id']
                         )
 
         session.add(new_user)
+        session.commit()
+
 
 
 def get_user(user_id):
@@ -50,8 +52,15 @@ def update_user(user_id, user_data):
     with Session(engine) as session:
         user = session.query(User).get(user_id)
 
-        for key, value in user_data.items():
-            setattr(user, key, value)
+        if user_data.get('password'):
+            user.password = argon2.hash(user_data.get('password'))
+        user.username = user_data.get('username') or user.username
+        user.email = user_data.get('email') or user.email
+        user.first_name = user_data.get('first_name') or user.first_name
+        user.last_name = user_data.get('last_name') or user.last_name
+        user.phone = user_data.get('phone') or user.phone
+        user.team_id = user_data.get('team_id') or user.team_id
+
         session.commit()
 
 
