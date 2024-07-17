@@ -9,6 +9,7 @@ pytest = "*"
 mysqlclient = "*"
 passlib = {extras = ["argon2"], version = "*"}
 alembic = "*"
+pyjwt = "*"
 
 [dev-packages]
 
