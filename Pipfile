@@ -10,6 +10,8 @@ mysqlclient = "*"
 passlib = {extras = ["argon2"], version = "*"}
 alembic = "*"
 pyjwt = "*"
+python-dotenv = "*"
+click = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ec9bcbb6612bef22239dd2c5708d84a254b1b8c87e2765d09ee297963fecf4f0"
+            "sha256": "45a571148eb056d34cf2e350a6a12a0db4bce19010a1b807509f8a1d75de2a55"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -117,6 +117,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==1.16.0"
         },
+        "click": {
+            "hashes": [
+                "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
+                "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==8.1.7"
+        },
         "colorama": {
             "hashes": [
                 "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44",
@@ -127,11 +136,11 @@
         },
         "exceptiongroup": {
             "hashes": [
-                "sha256:5258b9ed329c5bbdd31a309f53cbfb0b155341807f6ff7606a1e801a891b29ad",
-                "sha256:a4785e48b045528f5bfe627b6ad554ff32def154f42372786903b7abcfe1aa16"
+                "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b",
+                "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"
             ],
             "markers": "python_version < '3.11'",
-            "version": "==1.2.1"
+            "version": "==1.2.2"
         },
         "greenlet": {
             "hashes": [
@@ -346,6 +355,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==8.2.2"
+        },
+        "python-dotenv": {
+            "hashes": [
+                "sha256:e324ee90a023d808f1959c46bcbc04446a10ced277783dc6ee09987c37ec10ca",
+                "sha256:f7b63ef50f1b690dddf550d03497b66d609393b40b564ed0d674909a68ebf16a"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==1.0.1"
         },
         "sqlalchemy": {
             "hashes": [

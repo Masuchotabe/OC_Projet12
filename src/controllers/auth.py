@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from src.database import engine
 from src.models import User
+from src.utils import store_jwt
 
-
-my_secret = 'my_super_secret'
+from src.settings import SECRET_KEY
 
 
 def user_login(username, password):
@@ -18,7 +18,7 @@ def user_login(username, password):
                 "user_id": user.id,
                 "username": user.username
             }
-            token = jwt.encode(payload=payload_data, key=my_secret)
+            token = jwt.encode(payload=payload_data, key=SECRET_KEY)
             return token
         else:
             return 'Wrong password'
