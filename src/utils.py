@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta, datetime, timezone
 from functools import wraps
 
 import jwt
@@ -10,7 +11,7 @@ from src.models import User
 from src.settings import SECRET_KEY
 
 
-def get_connected_user(token):
+def get_user_from_token(token):
     """Return the user connected with jwt_token, else return None"""
     if not token:
         return None
@@ -21,8 +22,15 @@ def get_connected_user(token):
     return user
 
 
+def create_token(payload_data):
+    """Create a JWT token with the given payload_data dict"""
+    expiration_date = datetime.now(tz=timezone.utc) + timedelta(hours=1)
+    payload_data.update({"exp": expiration_date})
+    return jwt.encode(payload=payload_data, key=SECRET_KEY)
+
 def login_required(func):
     """decorator to ckeck if user is logged in"""
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user = get_user_from_token()
+        token = kwargs.get("token")
+        user = get_user_from_token(token)

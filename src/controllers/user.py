@@ -19,8 +19,8 @@ def create_user(user_data):
                         phone=user_data.get('phone'),
                         team_id=user_data.get('team_id')
                         )
-
         session.add(new_user)
+        session.commit()
 
 
 def get_user(user_id):

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from src.controllers.auth import user_login
 from src.controllers.user import *
 from src.models import *
-from src.utils import get_connected_user
+from src.utils import get_user_from_token
 
 # engine = create_engine("sqlite://", echo=True)
 # from src.models import create_all, create_engine
@@ -25,9 +25,9 @@ from src.utils import get_connected_user
 #     'first_name': 'prenom'
 # })
 
-user_login('firstuser', 'test_password')
+token = user_login('firstuser', 'test_password')
 
-user = get_connected_user()
+user = get_user_from_token(token)
 print(user.username)
 
 #
