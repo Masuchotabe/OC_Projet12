@@ -15,7 +15,13 @@ def get_user_from_token(token):
     """Return the user connected with jwt_token, else return None"""
     if not token:
         return None
-    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return 'token is expired'
+    except jwt.InvalidTokenError:
+        return 'token is invalid'
+
     user_id = payload.get("user_id")
     with Session(engine) as session:
         user = session.query(User).get(user_id)
