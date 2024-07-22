@@ -7,6 +7,8 @@ commande docker :
 # Installation
 Installation des requirements  
 `pipenv install`
+ 
+Create `.env` file from `.env.template` and set the different variables.  
 
 Création des tables  
 `pipenv run alembic upgrade head`
