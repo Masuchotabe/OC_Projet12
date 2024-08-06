@@ -7,7 +7,8 @@ class Base(DeclarativeBase):
     pass
 
 
-from .user import User, Team
+from .user import User
+from .team import Team
 from .customer import Customer, Contract, Event
 
 

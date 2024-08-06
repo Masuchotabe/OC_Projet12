@@ -4,6 +4,7 @@ from src.models import User, Team
 from sqlalchemy.orm import Session
 
 from src.database import engine
+from utils import login_required
 
 
 def create_user(user_data):
@@ -24,8 +25,10 @@ def create_user(user_data):
         session.commit()
 
 
-def get_user(user_id):
+@login_required
+def get_user(user_id, **kwargs):
     """Retourne un utilsateur à partir de l'id"""
+    user = kwargs.get('user')
     with Session(engine) as session:
         user = session.query(User).get(user_id)
         return user

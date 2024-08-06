@@ -15,7 +15,7 @@ class User(Base):
     __tablename__ = "user_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    personal_number = mapped_column(String(10))
+    personal_number: Mapped[str] = mapped_column(String(10))
     username: Mapped[str] = mapped_column(String(30))
     first_name: Mapped[Optional[str]] = mapped_column(String(30))
     last_name: Mapped[Optional[str]] = mapped_column(String(30))

@@ -41,7 +41,7 @@ def login_required(func):
     """decorator to ckeck if user is logged in"""
     @wraps(func)
     def wrapper(*args, **kwargs):
-        token = kwargs.get("token")
+        token = kwargs.pop("token")
         user = get_user_from_token(token)
         if user:
             kwargs["user"] = user

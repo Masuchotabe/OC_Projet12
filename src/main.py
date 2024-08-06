@@ -28,8 +28,9 @@ from src.utils import get_user_from_token
 token = user_login('firstuser', 'test_password')
 
 user = get_user_from_token(token)
-print(user.username)
-
+# print(user.username)
+user_2 = get_user(token=token, user_id=2)
+print(user_2.username)
 #
 # @click.group()
 # def cli():
