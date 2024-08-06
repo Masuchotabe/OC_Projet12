@@ -1,6 +1,6 @@
 from passlib.hash import argon2
 
-from src.models.user import User, Team
+from src.models import User, Team
 from sqlalchemy.orm import Session
 
 from src.database import engine
@@ -12,6 +12,7 @@ def create_user(user_data):
 
         password_hash = argon2.hash(user_data['password'])
         new_user = User(username=user_data.get('username'),
+                        personal_number=user_data.get('personal_number'),
                         email=user_data.get('email'),
                         password=password_hash,
                         first_name=user_data.get('first_name'),

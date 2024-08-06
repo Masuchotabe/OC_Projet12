@@ -18,9 +18,11 @@ def get_user_from_token(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
     except jwt.ExpiredSignatureError:
-        return 'token is expired'
+        print('token is expired')
+        return None
     except jwt.InvalidTokenError:
-        return 'token is invalid'
+        print('token is invalid')
+        return None
 
     user_id = payload.get("user_id")
     with Session(engine) as session:
@@ -34,9 +36,16 @@ def create_token(payload_data):
     payload_data.update({"exp": expiration_date})
     return jwt.encode(payload=payload_data, key=SECRET_KEY)
 
+
 def login_required(func):
     """decorator to ckeck if user is logged in"""
     @wraps(func)
     def wrapper(*args, **kwargs):
         token = kwargs.get("token")
         user = get_user_from_token(token)
+        if user:
+            kwargs["user"] = user
+            return func(*args, **kwargs)
+        else:
+            return "You need to login to access this feature"
+    return wrapper
