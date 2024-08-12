@@ -6,6 +6,7 @@ from src.controllers.auth import user_login
 from src.controllers.user import *
 from src.models import *
 from src.utils import get_user_from_token
+from database import engine, dump_data
 
 # engine = create_engine("sqlite://", echo=True)
 # from src.models import create_all, create_engine
@@ -25,13 +26,15 @@ from src.utils import get_user_from_token
 #     'first_name': 'prenom'
 # })
 
-token = user_login('firstuser', 'test_password')
-
-user = get_user_from_token(token)
-# print(user.username)
-user_2 = get_user(token=token, user_id=2)
-print(user_2.username)
+# token = user_login('firstuser', 'test_password')
 #
+# user = get_user_from_token(token)
+# # print(user.username)
+# user_2 = get_user(token=token, user_id=2)
+# print(user_2.username)
+
+dump_data(engine)
+
 # @click.group()
 # def cli():
 #     click.echo('Welcome to auth')
