@@ -6,14 +6,16 @@ from src.controllers.auth import user_login
 from src.controllers.user import *
 from src.models import *
 from src.utils import get_user_from_token
-from database import engine, dump_data
+from database import engine, dump_data, load_data
 
 # engine = create_engine("sqlite://", echo=True)
 # from src.models import create_all, create_engine
 
 # create_all()
 
-# create_team({'name': 'first team'})
+# create_team({'name': 'Sales team'})
+# create_team({'name': 'Support team'})
+# create_team({'name': 'Management team'})
 
 # create_user({
 #     'username': 'second_user',
@@ -27,13 +29,15 @@ from database import engine, dump_data
 # })
 
 # token = user_login('firstuser', 'test_password')
-#
+# #
 # user = get_user_from_token(token)
-# # print(user.username)
+# print(user.username)
 # user_2 = get_user(token=token, user_id=2)
 # print(user_2.username)
 
-dump_data(engine)
+dump_data(engine, 'fixtures/init_data.json')
+
+# load_data(engine)
 
 # @click.group()
 # def cli():

@@ -2,7 +2,7 @@
 Openclassrooms - Projet 12 : Développez une architecture back-end sécurisée avec Python et SQL
 
 commande docker : 
-`docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=root_password -d mysql:latest`
+`docker run --name some-mysql -e MYSQL_ROOT_PASSWORD={YOUR_ROOT_PASSWORD} -d mysql:latest`
 
 # Installation
 Installation des requirements  
@@ -12,3 +12,7 @@ Create `.env` file from `.env.template` and set the different variables.
 
 Création des tables  
 `pipenv run alembic upgrade head`
+
+# Développement 
+
+`alembic revision --autogenerate -m "{MIGRATION DESCRIPTION}"`
