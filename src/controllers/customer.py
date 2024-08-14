@@ -6,10 +6,14 @@ from src.models import Customer
 from sqlalchemy.orm import Session
 
 from src.database import engine
+from utils import login_required
 
 
-def create_customer(customer_data):
+@login_required
+def create_customer(customer_data, user):
     """Création d'un client"""
+    if not user.has_perm('create_customer'):
+        return
     with Session(engine) as session:
         new_customer = Customer(
             name=customer_data['name'],
@@ -23,31 +27,39 @@ def create_customer(customer_data):
         session.add(new_customer)
         session.commit()
 
-
-def get_customer(customer_id):
+@login_required
+def get_customer(customer_id, user):
     """Retourne un client à partir de son ID"""
+    if not user.has_perm('get_customer'):
+        return
     with Session(engine) as session:
         customer = session.query(Customer).get(customer_id)
         return customer
 
-
-def get_customers():
+@login_required
+def get_customers(user):
     """Retourne tous les clients"""
+    if not user.has_perm('list_customers'):
+        return
     with Session(engine) as session:
         customers = session.query(Customer).all()
         return customers
 
-
-def delete_customer(customer_id):
+@login_required
+def delete_customer(customer_id, user):
     """Supprime un client"""
+    if not user.has_perm('delete_customer'):
+        return
     with Session(engine) as session:
         customer = session.query(Customer).get(customer_id)
         session.delete(customer)
         session.commit()
 
-
-def update_customer(customer_id, customer_data):
+@login_required
+def update_customer(customer_id, customer_data, user):
     """Met à jour un client"""
+    if not user.has_perm('update_customer'):
+        return
     with Session(engine) as session:
         customer = session.query(Customer).get(customer_id)
 
