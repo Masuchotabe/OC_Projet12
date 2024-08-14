@@ -19,3 +19,15 @@ class Team(Base):
 
     def permissions(self):
         """retourne les permissions de la team"""
+        if self.name == "Management team":
+            return [
+                'create_user',
+                'read_user',
+                'list_users',
+                'delete_users',
+                'update_users',
+            ]
+        if self.name == "Support team":
+            return []
+        if self.name == "Sales team":
+            return []

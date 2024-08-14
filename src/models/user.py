@@ -29,7 +29,7 @@ class User(Base):
 
     @property
     def has_perm(self, permission: str) -> bool:
-        """retourne une liste de permission d'un utilisateur"""
+        """retourne True si permission fait partie des permissions de son équipe"""
         return permission in self.team.permissions()
 
 
