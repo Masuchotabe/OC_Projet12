@@ -8,9 +8,12 @@ from database import engine
 from utils import login_required
 from . import cli
 
-@click.group()
-def user_cli(ctx, token):
-    pass
+# @click.group()
+# def user_cli(ctx, token):
+#     pass
+
+user_cli = click.Group()
+
 
 @user_cli.command()
 @click.argument('token')
@@ -47,6 +50,7 @@ def get_user(user_id, user):
         return user
 
 @user_cli.command()
+@click.argument('token')
 @login_required
 def get_users(user):
     """Retourne tous les utilisateurs"""
@@ -57,6 +61,7 @@ def get_users(user):
         return users
 
 @user_cli.command()
+@click.argument('token')
 @login_required
 def delete_user(user_id, user):
     """Supprime un utilisateur"""
@@ -68,6 +73,7 @@ def delete_user(user_id, user):
         session.commit()
 
 @user_cli.command()
+@click.argument('token')
 @login_required
 def update_user(user_id, user_data, user):
     """Met à jour un user en fonction de l'id et des données"""

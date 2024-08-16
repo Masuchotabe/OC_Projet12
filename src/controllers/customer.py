@@ -9,12 +9,13 @@ from sqlalchemy.orm import Session
 from database import engine
 from utils import login_required
 
-@click.group()
-@click.argument('token')
-def customer_cli():
-    pass
+# @click.group()
+# def customer_cli():
+#     pass
+customer_cli = click.Group()
 
 @customer_cli.command()
+@click.argument('token')
 @login_required
 def create_customer(customer_data, user):
     """Création d'un client"""
@@ -34,6 +35,7 @@ def create_customer(customer_data, user):
         session.commit()
 
 @customer_cli.command()
+@click.argument('token')
 @login_required
 def get_customer(customer_id, user):
     """Retourne un client à partir de son ID"""
@@ -44,6 +46,7 @@ def get_customer(customer_id, user):
         return customer
 
 @customer_cli.command()
+@click.argument('token')
 @login_required
 def get_customers(user):
     """Retourne tous les clients"""
@@ -54,6 +57,7 @@ def get_customers(user):
         return customers
 
 @customer_cli.command()
+@click.argument('token')
 @login_required
 def delete_customer(customer_id, user):
     """Supprime un client"""
@@ -65,6 +69,7 @@ def delete_customer(customer_id, user):
         session.commit()
 
 @customer_cli.command()
+@click.argument('token')
 @login_required
 def update_customer(customer_id, customer_data, user):
     """Met à jour un client"""

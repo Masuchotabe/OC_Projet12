@@ -10,12 +10,15 @@ from database import engine
 from utils import login_required
 
 
-@click.group()
-@click.argument('token')
-def event_cli():
-    pass
+# @click.group()
+# def event_cli():
+#     pass
+
+event_cli = click.Group()
+
 
 @event_cli.command()
+@click.argument('token')
 @login_required
 def create_event(event_data, user):
     """Création d'un client"""
@@ -35,6 +38,7 @@ def create_event(event_data, user):
         session.commit()
 
 @event_cli.command()
+@click.argument('token')
 @login_required
 def get_event(event_id, user):
     """Retourne un client à partir de son ID"""
@@ -45,6 +49,7 @@ def get_event(event_id, user):
         return event
 
 @event_cli.command()
+@click.argument('token')
 @login_required
 def get_events(user):
     """Retourne tous les clients"""
@@ -55,6 +60,7 @@ def get_events(user):
         return events
 
 @event_cli.command()
+@click.argument('token')
 @login_required
 def delete_event(event_id, user):
     """Supprime un client"""
@@ -66,6 +72,7 @@ def delete_event(event_id, user):
         session.commit()
 
 @event_cli.command()
+@click.argument('token')
 @login_required
 def update_event(event_id, event_data, user):
     """Met à jour un client"""
