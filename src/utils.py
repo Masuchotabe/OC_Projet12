@@ -5,10 +5,10 @@ from functools import wraps
 import jwt
 from sqlalchemy.orm import Session
 
-from src import settings
-from src.database import engine
-from src.models import User
-from src.settings import SECRET_KEY
+import settings
+from database import engine
+from models import User
+from settings import SECRET_KEY
 
 
 def get_user_from_token(token):

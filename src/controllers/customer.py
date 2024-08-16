@@ -1,14 +1,20 @@
 from datetime import datetime
 
+import click
 from passlib.hash import argon2
 
-from src.models import Customer
+from models import Customer
 from sqlalchemy.orm import Session
 
-from src.database import engine
+from database import engine
 from utils import login_required
 
+@click.group()
+@click.argument('token')
+def customer_cli():
+    pass
 
+@customer_cli.command()
 @login_required
 def create_customer(customer_data, user):
     """Création d'un client"""
@@ -27,6 +33,7 @@ def create_customer(customer_data, user):
         session.add(new_customer)
         session.commit()
 
+@customer_cli.command()
 @login_required
 def get_customer(customer_id, user):
     """Retourne un client à partir de son ID"""
@@ -36,6 +43,7 @@ def get_customer(customer_id, user):
         customer = session.query(Customer).get(customer_id)
         return customer
 
+@customer_cli.command()
 @login_required
 def get_customers(user):
     """Retourne tous les clients"""
@@ -45,6 +53,7 @@ def get_customers(user):
         customers = session.query(Customer).all()
         return customers
 
+@customer_cli.command()
 @login_required
 def delete_customer(customer_id, user):
     """Supprime un client"""
@@ -55,6 +64,7 @@ def delete_customer(customer_id, user):
         session.delete(customer)
         session.commit()
 
+@customer_cli.command()
 @login_required
 def update_customer(customer_id, customer_data, user):
     """Met à jour un client"""

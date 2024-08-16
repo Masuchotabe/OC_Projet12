@@ -1,14 +1,21 @@
 from datetime import datetime
 
+import click
 from passlib.hash import argon2
 
-from src.models import Contract
+from models import Contract
 from sqlalchemy.orm import Session
 
-from src.database import engine
+from database import engine
 from utils import login_required
 
 
+@click.group()
+@click.argument('token')
+def contract_cli():
+    pass
+
+@contract_cli.command()
 @login_required
 def create_contract(contract_data, user):
     """Création d'un client"""
@@ -24,6 +31,7 @@ def create_contract(contract_data, user):
         session.add(new_contract)
         session.commit()
 
+@contract_cli.command()
 @login_required
 def get_contract(contract_id, user):
     """Retourne un client à partir de son ID"""
@@ -33,6 +41,7 @@ def get_contract(contract_id, user):
         contract = session.query(Contract).get(contract_id)
         return contract
 
+@contract_cli.command()
 @login_required
 def get_contracts(user):
     """Retourne tous les clients"""
@@ -42,6 +51,7 @@ def get_contracts(user):
         contracts = session.query(Contract).all()
         return contracts
 
+@contract_cli.command()
 @login_required
 def delete_contract(contract_id, user):
     """Supprime un client"""
@@ -52,6 +62,7 @@ def delete_contract(contract_id, user):
         session.delete(contract)
         session.commit()
 
+@contract_cli.command()
 @login_required
 def update_contract(contract_id, contract_data, user):
     """Met à jour un client"""

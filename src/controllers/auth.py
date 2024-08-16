@@ -1,20 +1,28 @@
+import click
 from passlib.hash import argon2
-import jwt
 from sqlalchemy.orm import Session
 
-from src.database import engine
-from src.models import User
-from src.utils import create_token
-
-from src.settings import SECRET_KEY
+from database import engine
+from models import User
+from utils import create_token
 
 
+@click.group()
+def auth_cli():
+    pass
+
+@auth_cli.command()
+@click.argument('username')
+@click.argument('password')
 def user_login(username, password):
     """"""
     with Session(engine) as session:
         user = session.query(User).filter_by(username=username).first()
-        if argon2.verify(password, user.password):
-            token = create_token(payload_data={"user_id": user.id})
-            return token
+        if user:
+            if argon2.verify(password, user.password):
+                token = create_token(payload_data={"user_id": user.id})
+                print(token)
+            else:
+                return 'Wrong password'
         else:
-            return 'Wrong password'
+            return 'User does not exist'

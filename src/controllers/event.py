@@ -1,14 +1,21 @@
 from datetime import datetime
 
+import click
 from passlib.hash import argon2
 
-from src.models import Event
+from models import Event
 from sqlalchemy.orm import Session
 
-from src.database import engine
+from database import engine
 from utils import login_required
 
 
+@click.group()
+@click.argument('token')
+def event_cli():
+    pass
+
+@event_cli.command()
 @login_required
 def create_event(event_data, user):
     """Création d'un client"""
@@ -27,6 +34,7 @@ def create_event(event_data, user):
         session.add(new_event)
         session.commit()
 
+@event_cli.command()
 @login_required
 def get_event(event_id, user):
     """Retourne un client à partir de son ID"""
@@ -36,6 +44,7 @@ def get_event(event_id, user):
         event = session.query(Event).get(event_id)
         return event
 
+@event_cli.command()
 @login_required
 def get_events(user):
     """Retourne tous les clients"""
@@ -45,6 +54,7 @@ def get_events(user):
         events = session.query(Event).all()
         return events
 
+@event_cli.command()
 @login_required
 def delete_event(event_id, user):
     """Supprime un client"""
@@ -55,6 +65,7 @@ def delete_event(event_id, user):
         session.delete(event)
         session.commit()
 
+@event_cli.command()
 @login_required
 def update_event(event_id, event_data, user):
     """Met à jour un client"""

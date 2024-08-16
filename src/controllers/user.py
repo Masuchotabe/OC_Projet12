@@ -1,32 +1,42 @@
+import click
 from passlib.hash import argon2
 
-from src.models import User, Team
+from models import User, Team
 from sqlalchemy.orm import Session
 
-from src.database import engine
+from database import engine
 from utils import login_required
+from . import cli
 
+@click.group()
+def user_cli(ctx, token):
+    pass
 
+@user_cli.command()
+@click.argument('token')
 @login_required
-def create_user(user_data, user):
+def create_user(user):
     """Création du user"""
-    if not user.has_perm('create_user'):
-        return
-    with Session(engine) as session:
-        password_hash = argon2.hash(user_data['password'])
-        new_user = User(username=user_data.get('username'),
-                        personal_number=user_data.get('personal_number'),
-                        email=user_data.get('email'),
-                        password=password_hash,
-                        first_name=user_data.get('first_name'),
-                        last_name=user_data.get('last_name'),
-                        phone=user_data.get('phone'),
-                        team_id=user_data.get('team_id')
-                        )
-        session.add(new_user)
-        session.commit()
+    click.echo(f"{user.username}")
+    user_data = {}
+    # if not user.has_perm('create_user'):
+    #     return
+    # with Session(engine) as session:
+    #     password_hash = argon2.hash(user_data['password'])
+    #     new_user = User(username=user_data.get('username'),
+    #                     personal_number=user_data.get('personal_number'),
+    #                     email=user_data.get('email'),
+    #                     password=password_hash,
+    #                     first_name=user_data.get('first_name'),
+    #                     last_name=user_data.get('last_name'),
+    #                     phone=user_data.get('phone'),
+    #                     team_id=user_data.get('team_id')
+    #                     )
+    #     session.add(new_user)
+    #     session.commit()
 
-
+@user_cli.command()
+@click.argument('token')
 @login_required
 def get_user(user_id, user):
     """Retourne un utilsateur à partir de l'id"""
@@ -36,7 +46,7 @@ def get_user(user_id, user):
         user = session.query(User).get(user_id)
         return user
 
-
+@user_cli.command()
 @login_required
 def get_users(user):
     """Retourne tous les utilisateurs"""
@@ -46,7 +56,7 @@ def get_users(user):
         users = session.query(User).all()
         return users
 
-
+@user_cli.command()
 @login_required
 def delete_user(user_id, user):
     """Supprime un utilisateur"""
@@ -57,7 +67,8 @@ def delete_user(user_id, user):
         session.delete(user)
         session.commit()
 
-
+@user_cli.command()
+@login_required
 def update_user(user_id, user_data, user):
     """Met à jour un user en fonction de l'id et des données"""
     if not user.has_perm('update_users'):
