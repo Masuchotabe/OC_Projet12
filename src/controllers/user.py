@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 
 from database import engine
 from utils import login_required
-from . import cli
 
 # @click.group()
 # def user_cli(ctx, token):
@@ -20,23 +19,22 @@ user_cli = click.Group()
 @login_required
 def create_user(user):
     """Création du user"""
-    click.echo(f"{user.username}")
-    user_data = {}
-    # if not user.has_perm('create_user'):
-    #     return
-    # with Session(engine) as session:
-    #     password_hash = argon2.hash(user_data['password'])
-    #     new_user = User(username=user_data.get('username'),
-    #                     personal_number=user_data.get('personal_number'),
-    #                     email=user_data.get('email'),
-    #                     password=password_hash,
-    #                     first_name=user_data.get('first_name'),
-    #                     last_name=user_data.get('last_name'),
-    #                     phone=user_data.get('phone'),
-    #                     team_id=user_data.get('team_id')
-    #                     )
-    #     session.add(new_user)
-    #     session.commit()
+    if not user.has_perm('create_user'):
+        return
+    user_data = views.prompt_for_user()
+    with Session(engine) as session:
+        password_hash = argon2.hash(user_data['password'])
+        new_user = User(username=user_data.get('username'),
+                        personal_number=user_data.get('personal_number'),
+                        email=user_data.get('email'),
+                        password=password_hash,
+                        first_name=user_data.get('first_name'),
+                        last_name=user_data.get('last_name'),
+                        phone=user_data.get('phone'),
+                        team_id=user_data.get('team_id')
+                        )
+        session.add(new_user)
+        session.commit()
 
 @user_cli.command()
 @click.argument('token')

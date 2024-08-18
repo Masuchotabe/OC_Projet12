@@ -9,13 +9,11 @@ from sqlalchemy.orm import Session
 from database import engine
 from utils import login_required
 
+contract_cli = click.Group()
 
-@click.group()
-@click.argument('token')
-def contract_cli():
-    pass
 
 @contract_cli.command()
+@click.argument('token')
 @login_required
 def create_contract(contract_data, user):
     """Création d'un client"""
@@ -32,6 +30,7 @@ def create_contract(contract_data, user):
         session.commit()
 
 @contract_cli.command()
+@click.argument('token')
 @login_required
 def get_contract(contract_id, user):
     """Retourne un client à partir de son ID"""
@@ -42,6 +41,7 @@ def get_contract(contract_id, user):
         return contract
 
 @contract_cli.command()
+@click.argument('token')
 @login_required
 def get_contracts(user):
     """Retourne tous les clients"""
@@ -52,6 +52,7 @@ def get_contracts(user):
         return contracts
 
 @contract_cli.command()
+@click.argument('token')
 @login_required
 def delete_contract(contract_id, user):
     """Supprime un client"""
@@ -63,6 +64,7 @@ def delete_contract(contract_id, user):
         session.commit()
 
 @contract_cli.command()
+@click.argument('token')
 @login_required
 def update_contract(contract_id, contract_data, user):
     """Met à jour un client"""

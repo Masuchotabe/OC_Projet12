@@ -3,7 +3,6 @@ from click import pass_context
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from controllers import cli
 from controllers.auth import auth_cli, user_login
 from controllers.contract import contract_cli
 from controllers.customer import customer_cli
