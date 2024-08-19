@@ -12,6 +12,7 @@ alembic = "*"
 pyjwt = "*"
 python-dotenv = "*"
 click = "*"
+rich = "*"
 
 [dev-packages]
 
