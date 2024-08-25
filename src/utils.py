@@ -3,7 +3,8 @@ from datetime import timedelta, datetime, timezone
 from functools import wraps
 
 import jwt
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.orm import Session, sessionmaker
 
 import settings
 from database import engine
@@ -11,8 +12,15 @@ from models import User
 from settings import SECRET_KEY
 
 
-def get_user_from_token(token):
-    """Return the user connected with jwt_token, else return None"""
+def get_user_from_token(token, session):
+    """
+    Return the user connected with jwt_token, else return None
+    Args:
+        token(str):
+        session(Session):
+
+    Returns(User):
+    """
     if not token:
         return None
     try:
@@ -25,8 +33,7 @@ def get_user_from_token(token):
         return None
 
     user_id = payload.get("user_id")
-    with Session(engine) as session:
-        user = session.query(User).get(user_id)
+    user = session.scalar(select(User).where(User.id == user_id))
     return user
 
 
@@ -37,15 +44,3 @@ def create_token(payload_data):
     return jwt.encode(payload=payload_data, key=SECRET_KEY)
 
 
-def login_required(func):
-    """decorator to ckeck if user is logged in"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        token = kwargs.pop("token")
-        user = get_user_from_token(token)
-        if user:
-            kwargs["user"] = user
-            return func(*args, **kwargs)
-        else:
-            return "You need to login to access this feature"
-    return wrapper

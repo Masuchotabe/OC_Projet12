@@ -7,7 +7,7 @@ from models import Contract
 from sqlalchemy.orm import Session
 
 from database import engine
-from utils import login_required
+from decorators import login_required
 
 contract_cli = click.Group()
 

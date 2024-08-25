@@ -1,27 +1,24 @@
 import click
 from passlib.hash import argon2
+from sqlalchemy import select
 
+from views.user import prompt_for_user, display_users
 from models import User, Team
 from sqlalchemy.orm import Session
 
 from database import engine
-from utils import login_required
-
-# @click.group()
-# def user_cli(ctx, token):
-#     pass
+from decorators import login_required, permission_required, manage_session
 
 user_cli = click.Group()
 
-
 @user_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
 def create_user(user):
     """Création du user"""
     if not user.has_perm('create_user'):
         return
-    user_data = views.prompt_for_user()
     with Session(engine) as session:
         password_hash = argon2.hash(user_data['password'])
         new_user = User(username=user_data.get('username'),
@@ -35,6 +32,27 @@ def create_user(user):
                         )
         session.add(new_user)
         session.commit()
+@permission_required('create_user')
+def create_user(user, session):
+    """
+    Création du user
+    Args:
+        user(User): user connecté via la token
+        session(Session): session sqlalchemy
+    """
+    password_hash = argon2.hash(user_data['password'])
+
+    new_user = User(username=user_data.get('username'),
+                    personal_number=user_data.get('personal_number'),
+                    email=user_data.get('email'),
+                    password=password_hash,
+                    first_name=user_data.get('first_name'),
+                    last_name=user_data.get('last_name'),
+                    phone=user_data.get('phone'),
+                    team=team
+                    )
+    session.add(new_user)
+    session.commit()
 
 @user_cli.command()
 @click.argument('token')
@@ -49,14 +67,18 @@ def get_user(user_id, user):
 
 @user_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def get_users(user):
-    """Retourne tous les utilisateurs"""
-    if not user.has_perm('list_users'):
-        return
-    with Session(engine) as session:
-        users = session.query(User).all()
-        return users
+@permission_required('list_users')
+def get_users(user, session):
+    """Retourne tous les utilisateurs
+    Args:
+        user(User): user connecté via la token
+        session(Session): session sqlalchemy
+    """
+    users = session.scalars(select(User)).all()
+    display_users(users)
+
 
 @user_cli.command()
 @click.argument('token')

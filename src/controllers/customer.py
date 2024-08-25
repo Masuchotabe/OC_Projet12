@@ -7,7 +7,7 @@ from models import Customer
 from sqlalchemy.orm import Session
 
 from database import engine
-from utils import login_required
+from decorators import login_required
 
 # @click.group()
 # def customer_cli():
