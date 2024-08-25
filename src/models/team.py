@@ -17,6 +17,9 @@ class Team(Base):
     name: Mapped[str] = mapped_column(String(30))
     members: Mapped[List["User"]] = relationship(back_populates="team")
 
+    def __str__(self):
+        return self.name
+
     def permissions(self):
         """retourne les permissions de la team"""
         if self.name == "Management team":

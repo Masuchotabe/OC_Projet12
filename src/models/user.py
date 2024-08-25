@@ -1,9 +1,11 @@
 from __future__ import annotations
+
+import re
 from typing import List, Optional
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy import Integer
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, validates
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
@@ -27,7 +29,21 @@ class User(Base):
     customers: Mapped[List["Customer"]] = relationship("Customer", back_populates="sales_contact")
     managed_events: Mapped[List["Event"]] = relationship("Event", back_populates="support_contact")
 
-    @property
+    @validates('username')
+    def validate_username(self, key, username):
+        """Validate username"""
+        if len(username) < 5 or re.match(r"^[a-zA-Z][a-zA-Z0-9]+$", username):
+            raise ValueError("""The username must contain at least 5 characters 
+                        and consist only of letters and number, starting with a letter.""")
+        return username
+
+    @validates('username')
+    def validate_username(self, key, email):
+        """Validate username"""
+        if email and re.match(r"^((?!\.)[\w\-_.+]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$", email):
+            raise ValueError("""The email is not valid.""")
+        return email
+
     def has_perm(self, permission: str) -> bool:
         """retourne True si permission fait partie des permissions de son équipe"""
         return permission in self.team.permissions()

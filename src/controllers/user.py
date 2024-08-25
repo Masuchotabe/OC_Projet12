@@ -15,23 +15,6 @@ user_cli = click.Group()
 @click.argument('token')
 @manage_session
 @login_required
-def create_user(user):
-    """Création du user"""
-    if not user.has_perm('create_user'):
-        return
-    with Session(engine) as session:
-        password_hash = argon2.hash(user_data['password'])
-        new_user = User(username=user_data.get('username'),
-                        personal_number=user_data.get('personal_number'),
-                        email=user_data.get('email'),
-                        password=password_hash,
-                        first_name=user_data.get('first_name'),
-                        last_name=user_data.get('last_name'),
-                        phone=user_data.get('phone'),
-                        team_id=user_data.get('team_id')
-                        )
-        session.add(new_user)
-        session.commit()
 @permission_required('create_user')
 def create_user(user, session):
     """
@@ -40,6 +23,12 @@ def create_user(user, session):
         user(User): user connecté via la token
         session(Session): session sqlalchemy
     """
+    teams_name = session.scalars(select(Team.name)).all()
+
+    user_data = prompt_for_user(team_choice=teams_name)
+    team = session.scalars(
+        select(Team).where(Team.name==user_data.get('team_name'))
+    ).first()
     password_hash = argon2.hash(user_data['password'])
 
     new_user = User(username=user_data.get('username'),
