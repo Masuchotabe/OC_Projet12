@@ -45,14 +45,14 @@ def create_user(user, session):
 
 @user_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
+@permission_required('read_user')
 def get_user(user_id, user):
-    """Retourne un utilsateur à partir de l'id"""
-    if not user.has_perm('read_user'):
-        return
+    """Retourne un utilisateur à partir de l'id"""
     with Session(engine) as session:
         user = session.query(User).get(user_id)
-        return user
+        display_users([user])
 
 @user_cli.command()
 @click.argument('token')

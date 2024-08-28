@@ -21,15 +21,19 @@ def prompt_for_user(actual_user=None, team_choice=None):
     return user_data
 
 def display_users(users):
-    table = Table(title='Users' ,header_style="bold magenta")
-    table.add_column('Id')
-    table.add_column('Employee ID')
-    table.add_column('Email')
-    table.add_column('First name')
-    table.add_column('Last name')
-    table.add_column('Phone')
-    table.add_column('Team')
+    headers = ['Id', 'Employee ID', 'Username', 'Email', 'First name', 'Last name', 'Phone', 'Team']
+    title = "Users" if len(users) >1 else "User"
+    rows = []
     for user in users:
-        table.add_row(str(user.id), user.personal_number, user.email,
-                      user.first_name, user.last_name, user.phone, str(user.team))
+        rows.append((user.id, user.personal_number,user.username, user.email,
+                      user.first_name, user.last_name, user.phone, user.team))
+    display_table(headers, rows, title)
+
+def display_table(headers, rows, title):
+    table = Table(title=title)
+    for header in headers:
+        table.add_column(header)
+    for row in rows:
+        table.add_row(*[str(e) if e else e for e in row])
     console.print(table)
+
