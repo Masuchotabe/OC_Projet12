@@ -14,7 +14,7 @@ class Team(Base):
     __tablename__ = "team_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(30))
+    name: Mapped[str] = mapped_column(String(30), unique=True)
     members: Mapped[List["User"]] = relationship(back_populates="team")
 
     def __str__(self):
