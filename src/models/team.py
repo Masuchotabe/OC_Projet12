@@ -28,7 +28,7 @@ class Team(Base):
                 'read_user',
                 'list_users',
                 'delete_users',
-                'update_users',
+                'update_user',
             ]
         if self.name == "Support team":
             return []
