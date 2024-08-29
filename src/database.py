@@ -1,5 +1,6 @@
 import json
 
+import click
 from sqlalchemy import create_engine, inspect, text, insert
 
 from models import Base
@@ -9,8 +10,11 @@ DATABASE_URL = f'mysql+mysqldb://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_H
 
 engine = create_engine(DATABASE_URL)
 
+config_group = click.Group('config')
 
-def dump_data(engine, json_file='fixtures/database_dump.json'):
+@config_group.command()
+@click.option('--filename', type=click.Path(exists=False, dir_okay=False), default='fixtures/database_dump.json')
+def dump_data(filename):
     tables = Base.metadata.tables.keys()
     data = {}
     with engine.connect() as conn:
@@ -18,13 +22,14 @@ def dump_data(engine, json_file='fixtures/database_dump.json'):
             result = conn.execute(text(f"SELECT * FROM {table}"))
             data[table] = [row._asdict() for row in result]
 
-    with open(json_file, 'w') as f:
+    with open(filename, 'w') as f:
         json.dump(data, f)
 
-
-def load_data(engine, json_file='fixtures/database_dump.json'):
+@config_group.command()
+@click.option('--filename', type=click.Path(exists=True, dir_okay=False), default='fixtures/init_data.json')
+def load_data(filename):
     """Permet d'intégrer des données depuis un fichier json"""
-    with open(json_file, 'r') as file:
+    with open(filename, 'r') as file:
         json_data = json.load(file)
 
     with engine.connect() as conn:

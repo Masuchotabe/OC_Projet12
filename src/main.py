@@ -8,6 +8,7 @@ from controllers.contract import contract_cli
 from controllers.customer import customer_cli
 from controllers.event import event_cli
 from controllers.user import user_cli, create_user
+from database import config_group
 
 # from controllers.auth import user_login
 # from controllers.user import *
@@ -80,8 +81,14 @@ from controllers.user import user_cli, create_user
 #     """command 2 for testing 2"""
 #     click.echo('This is command 2')
 # #
-global_cli = click.CommandCollection(sources=[auth_cli, user_cli, customer_cli, event_cli, contract_cli])
-#
+global_cli = click.CommandCollection(name='test', sources=[auth_cli, user_cli, customer_cli, event_cli, contract_cli, config_group])
+
+# global_v2 = click.Group('global')
+# global_v2.add_command(global_cli)
+# global_v2.add_command(config_group)
+
+
+
 # # @click.CommandCollection(sources=[auth_cli, user_cli, customer_cli, event_cli, contract_cli])
 # # @click.argument('token')
 # # @pass_context
@@ -89,5 +96,5 @@ global_cli = click.CommandCollection(sources=[auth_cli, user_cli, customer_cli, 
 # #     click.echo(f'{token=}')
 #
 if __name__ == '__main__':
-    global_cli(obj={})
+    global_cli()
 
