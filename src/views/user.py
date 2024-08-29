@@ -27,7 +27,8 @@ def prompt_for_user(actual_user=None, team_choice=None):
         user_data['first_name'] = Prompt.ask('First name')
         user_data['last_name'] = Prompt.ask('Last name')
         user_data['phone'] = Prompt.ask('Phone')
-        user_data['team_name'] = Prompt.ask('Team name', choices=team_choice)
+        if team_choice:
+            user_data['team_name'] = Prompt.ask('Team name', choices=team_choice)
     return user_data
 
 def display_users(users):

@@ -126,6 +126,37 @@ def update_user(user, session):
     session.commit()
 
 
+@user_cli.command()
+@manage_session
+def create_admin(session):
+    """
+    Création du user admin, possible uniquement si il n'y pas pas d'utilisateur
+    Args:
+        user(User): user connecté via le token
+        session(Session): session sqlalchemy
+    """
+    if session.scalars(Select(User)).all():
+        show_error("Initialization failed: Users already exist in the database. This feature is only available for an empty database.")
+        return
+
+    user_data = prompt_for_user()
+    team = session.scalars(
+        select(Team).where(Team.name=="Management team")
+    ).first()
+    password_hash = argon2.hash(user_data['password'])
+
+    new_user = User(username=user_data.get('username'),
+                    personal_number=user_data.get('personal_number'),
+                    email=user_data.get('email'),
+                    password=password_hash,
+                    first_name=user_data.get('first_name'),
+                    last_name=user_data.get('last_name'),
+                    phone=user_data.get('phone'),
+                    team=team
+                    )
+    session.add(new_user)
+    session.commit()
+
 def create_team(team_data):
     """Création d'une equipe"""
     with Session(engine) as session:
