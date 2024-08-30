@@ -2,7 +2,7 @@ import time
 
 from rich.console import Console
 from rich.live import Live
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 from rich.table import Table
 
 console = Console()
@@ -52,6 +52,9 @@ def ask_for(message, password=False):
     message = message + " [dark_magenta]\[Enter \q to exit]"
     val = Prompt.ask(message, password=password)
     return val, val.strip() == '\q'
+
+def ask_confirm(message):
+    return Confirm.ask(message, default=True)
 
 def show_error(error_message):
     console.print(error_message, style="red")

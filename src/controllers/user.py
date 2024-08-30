@@ -2,7 +2,7 @@ import click
 from passlib.hash import argon2
 from sqlalchemy import select, Select
 
-from views.user import prompt_for_user, display_users, ask_for, show_error
+from views.user import prompt_for_user, display_users, ask_for, show_error, ask_confirm
 from models import User, Team
 from sqlalchemy.orm import Session
 
@@ -24,11 +24,22 @@ def create_user(user, session):
         session(Session): session sqlalchemy
     """
     teams_name = session.scalars(select(Team.name)).all()
+    try_again = True
+    user_data = dict()
+    while try_again:
 
-    user_data = prompt_for_user(team_choice=teams_name)
+        user_data = prompt_for_user(team_choice=teams_name)
+        errors = User.validate_user_data(user_data)
+        if not errors:
+            break
+        for error in errors:
+            show_error(error)
+        try_again = ask_confirm('Try again ?')
+
     team = session.scalars(
         select(Team).where(Team.name==user_data.get('team_name'))
     ).first()
+
     password_hash = argon2.hash(user_data['password'])
 
     new_user = User(username=user_data.get('username'),
@@ -119,10 +130,13 @@ def update_user(user, session):
     team = session.scalars(
         select(Team).where(Team.name == user_data.get('team_name'))
     ).first()
+    user_data['team'] = team
+
     if user_data['password']:
         user_data['password'] = argon2.hash(user_data['password'])
     for key, value in user_data.items():
-        setattr(target_user, key, value)
+        if hasattr(target_user, key):
+            setattr(target_user, key, value)
     session.commit()
 
 

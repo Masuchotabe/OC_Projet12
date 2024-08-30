@@ -29,24 +29,53 @@ class User(Base):
     customers: Mapped[List["Customer"]] = relationship("Customer", back_populates="sales_contact")
     managed_events: Mapped[List["Event"]] = relationship("Event", back_populates="support_contact")
 
-    @validates('username')
-    def validate_username(self, key, username):
+    @classmethod
+    def validate_username(cls, username):
         """Validate username"""
-        if len(username) < 5 or re.match(r"^[a-zA-Z][a-zA-Z0-9]+$", username):
-            raise ValueError("""The username must contain at least 5 characters 
-                        and consist only of letters and number, starting with a letter.""")
+        if len(username) < 5 or not re.match(r"^[a-zA-Z][a-zA-Z0-9]+$", username):
+            raise ValueError("""The username must contain at least 5 characters and consist only of letters and number, starting with a letter.""")
         return username
 
-    @validates('username')
-    def validate_username(self, key, email):
-        """Validate username"""
-        if email and re.match(r"^((?!\.)[\w\-_.+]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$", email):
+    @classmethod
+    def validate_email(cls, email):
+        """Validate email"""
+        if email and  not re.match(r"^((?!\.)[\w\-_.+]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$", email):
             raise ValueError("""The email is not valid.""")
         return email
+
+    @classmethod
+    def validate_personal_number(cls, personal_number):
+        """Validate email"""
+        if len(personal_number) != 10 or not re.match(r"^[0-9]+$", personal_number):
+            raise ValueError("""Employee ID must be 10 numbers""")
+        return personal_number
+
+    @classmethod
+    def validate_password(cls, password):
+        """Validate email"""
+        if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$", password):
+            raise ValueError("""Password must contain at least 8 characters, including lowercase, uppercase, and a number.""")
+        return password
 
     def has_perm(self, permission: str) -> bool:
         """retourne True si permission fait partie des permissions de son équipe"""
         return permission in self.team.permissions()
+
+    @classmethod
+    def validate_user_data(cls, user_data):
+        """
+        Validate some user data.
+        :param user_data(dict): dict of user datas
+        :return: list of errors
+        """
+        errors = []
+        for field_name, value in user_data.items():
+            if hasattr(cls, 'validate_'+field_name):
+                try:
+                    getattr(cls, 'validate_'+field_name)(value)
+                except ValueError as e:
+                    errors.append(str(e))
+        return errors
 
 
 
