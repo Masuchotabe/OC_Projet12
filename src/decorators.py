@@ -35,10 +35,12 @@ def permission_required(permission):
     return decorator
 
 def manage_session(func):
-    """decorator to ckeck if user is logged in"""
+    """Intègre une session s'il n'y en pas déjà."""
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if kwargs.get("session"):
+            return func(*args, **kwargs)
         with Session(engine) as session:
-            kwargs['session'] = session  # Passez la session en argument à la fonction
+            kwargs['session'] = session
             return func(*args, **kwargs)
     return wrapper
