@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, event, insert, select
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -34,3 +34,20 @@ class Team(Base):
             return []
         if self.name == "Sales team":
             return []
+
+    @classmethod
+    def get_teams(cls, session):
+        """Retourne une liste des équipes"""
+        return session.scalars(select(cls)).all()
+
+    @classmethod
+    def get_team(cls, session, team_name):
+        """Retourne une équipe à partir de son nom"""
+        return session.scalar(select(cls).where(cls.name==team_name))
+
+@event.listens_for(Team.__table__, "after_create")
+def init_team(target, connection, **kwargs):
+    """listen for the 'after_create' event"""
+    connection.execute(insert(target).values(name="Management team"))
+    connection.execute(insert(target).values(name="Sales team"))
+    connection.execute(insert(target).values(name="Support team"))

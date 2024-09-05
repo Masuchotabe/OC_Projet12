@@ -1,13 +1,14 @@
 import click
+from click import pass_context
 from passlib.hash import argon2
 from sqlalchemy import select, Select
 
-from views.user import prompt_for_user, display_users, ask_for, show_error, ask_confirm
-from models import User, Team
+from src.views.user import prompt_for_user, display_users, ask_for, show_error, ask_confirm
+from src.models import User, Team
 from sqlalchemy.orm import Session
 
-from database import engine
-from decorators import login_required, permission_required, manage_session
+from src.database import engine
+from src.decorators import login_required, permission_required, manage_session
 
 user_cli = click.Group()
 
@@ -23,7 +24,7 @@ def create_user(user, session):
         user(User): user connecté via le token
         session(Session): session sqlalchemy
     """
-    teams_name = session.scalars(select(Team.name)).all()
+    teams_name = [team.name for team in Team.get_teams(session)]
     try_again = True
     user_data = dict()
     while try_again:
@@ -36,23 +37,10 @@ def create_user(user, session):
             show_error(error)
         try_again = ask_confirm('Try again ?')
 
-    team = session.scalars(
-        select(Team).where(Team.name==user_data.get('team_name'))
-    ).first()
+    if user_data:
+        user_data['team'] = Team.get_team(session, user_data['team_name'])
+        User.create(session, user_data)
 
-    password_hash = argon2.hash(user_data['password'])
-
-    new_user = User(username=user_data.get('username'),
-                    personal_number=user_data.get('personal_number'),
-                    email=user_data.get('email'),
-                    password=password_hash,
-                    first_name=user_data.get('first_name'),
-                    last_name=user_data.get('last_name'),
-                    phone=user_data.get('phone'),
-                    team=team
-                    )
-    session.add(new_user)
-    session.commit()
 
 @user_cli.command()
 @click.argument('token')
@@ -125,19 +113,23 @@ def update_user(user, session):
     if not target_user:
         return
 
-    teams_name = session.scalars(select(Team.name)).all()
-    user_data = prompt_for_user(actual_user=target_user, team_choice=teams_name)
-    team = session.scalars(
-        select(Team).where(Team.name == user_data.get('team_name'))
-    ).first()
-    user_data['team'] = team
+    teams_name = [team.name for team in Team.get_teams(session)]
+    try_again = True
+    user_data = dict()
+    while try_again:
 
-    if user_data['password']:
-        user_data['password'] = argon2.hash(user_data['password'])
-    for key, value in user_data.items():
-        if hasattr(target_user, key):
-            setattr(target_user, key, value)
-    session.commit()
+        user_data = prompt_for_user(team_choice=teams_name)
+        errors = User.validate_user_data(user_data)
+        if not errors:
+            break
+        for error in errors:
+            show_error(error)
+        try_again = ask_confirm('Try again ?')
+    if user_data:
+        user_data['team'] = Team.get_team(session, user_data['team_name'])
+
+        target_user.update(session, user_data)
+
 
 
 @user_cli.command()
@@ -153,23 +145,25 @@ def create_admin(session):
         show_error("Initialization failed: Users already exist in the database. This feature is only available for an empty database.")
         return
 
-    user_data = prompt_for_user()
-    team = session.scalars(
-        select(Team).where(Team.name=="Management team")
-    ).first()
-    password_hash = argon2.hash(user_data['password'])
+    try_again = True
+    user_data = dict()
+    while try_again:
 
-    new_user = User(username=user_data.get('username'),
-                    personal_number=user_data.get('personal_number'),
-                    email=user_data.get('email'),
-                    password=password_hash,
-                    first_name=user_data.get('first_name'),
-                    last_name=user_data.get('last_name'),
-                    phone=user_data.get('phone'),
-                    team=team
-                    )
-    session.add(new_user)
-    session.commit()
+        user_data = prompt_for_user()
+        errors = User.validate_user_data(user_data)
+        if not errors:
+            break
+        for error in errors:
+            show_error(error)
+        try_again = ask_confirm('Try again ?')
+
+    if user_data:
+        user_data['team'] = session.scalars(
+            select(Team).where(Team.name=="Management team")
+        ).first()
+
+        User.create(session, user_data)
+
 
 def create_team(team_data):
     """Création d'une equipe"""

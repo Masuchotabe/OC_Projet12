@@ -6,10 +6,8 @@ import jwt
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-import settings
-from database import engine
-from models import User
-from settings import SECRET_KEY
+from src.models import User
+from src.settings import SECRET_KEY
 
 
 def get_user_from_token(token, session):

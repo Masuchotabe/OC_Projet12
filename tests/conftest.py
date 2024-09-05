@@ -1,8 +1,14 @@
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from datetime import datetime, timezone, timedelta
 
-from models import Base, Team
+import jwt
+import pytest
+from passlib.handlers.argon2 import argon2
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session, sessionmaker
+
+from src.models import User
+from src.settings import SECRET_KEY
+from src.models import Base, Team
 
 
 @pytest.fixture(scope='session')
@@ -18,6 +24,41 @@ def engine():
 
 @pytest.fixture(scope='function')
 def session(engine):
-    session = Session(bind=engine)
+    TestingSession = sessionmaker(bind=engine)
+    session = TestingSession()
     yield session
+    session.close()
+
+@pytest.fixture(scope='function')
+def user(session):
+    user_data = {
+        'username': 'test_admin',
+        'password': argon2.hash('test_password'),
+        'personal_number': '0000000000',
+        'email': 'admin@email.com',
+        'team': session.scalar(select(Team)),
+    }
+    user = User(**user_data)
+    session.add(user)
+    session.commit()
+    yield user
+    session.delete(user)
+    session.commit()
+    session.close()
+
+
+@pytest.fixture(scope='function')
+def token(user):
+    payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) + timedelta(hours=1)}
+    token = jwt.encode(payload=payload, key=SECRET_KEY)
+    yield token
+
+@pytest.fixture(scope='function')
+def invalid_token(user):
+    payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
+    token = jwt.encode(payload=payload, key=SECRET_KEY)
+    yield token
+    # session.rollback()
+
+
 

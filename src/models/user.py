@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
+import argon2
 from sqlalchemy import ForeignKey, String
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, validates
@@ -57,10 +58,6 @@ class User(Base):
             raise ValueError("""Password must contain at least 8 characters, including lowercase, uppercase, and a number.""")
         return password
 
-    def has_perm(self, permission: str) -> bool:
-        """retourne True si permission fait partie des permissions de son équipe"""
-        return permission in self.team.permissions()
-
     @classmethod
     def validate_user_data(cls, user_data):
         """
@@ -77,9 +74,48 @@ class User(Base):
                     errors.append(str(e))
         return errors
 
+    @classmethod
+    def create(cls, session, user_data):
+        """
+        Crée un user et le retourne
+        Args:
+            session:
+            user_data:
+
+        Returns:
+
+        """
+        user_data['password'] = argon2.hash(user_data['password'])
+        user = cls()
+        user._update_data(session, user_data)
+
+        session.add(user)
+        session.commit()
+        return user
+
+    def update(self, session, user_data):
+        """
+        Met à jour un utilisateur
+        Args:
+            session(session): session de db
+            user_data: Données utilisateur
+        """
+        if user_data['password']:
+            user_data['password'] = argon2.hash(user_data['password'])
+        self._update_data(session, user_data)
+        session.commit()
+
+    def _update_data(self, session, user_data):
+        """Met à jour les données utilisateur"""
+        for key, value in user_data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
 
 
+    def has_perm(self, permission: str) -> bool:
+        """retourne True si permission fait partie des permissions de son équipe"""
+        return permission in self.team.permissions()
 
 
 
