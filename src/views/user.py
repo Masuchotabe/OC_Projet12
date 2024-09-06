@@ -49,9 +49,9 @@ def display_table(headers, rows, title):
     console.print(table)
 
 def ask_for(message, password=False):
-    message = message + " [dark_magenta]\[Enter \q to exit]"
+    message = message + r" [dark_magenta]\[Enter \q to exit]"
     val = Prompt.ask(message, password=password)
-    return val, val.strip() == '\q'
+    return val, val.strip() == r'\q'
 
 def ask_confirm(message):
     return Confirm.ask(message, default=True)

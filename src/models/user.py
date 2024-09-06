@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import re
 from typing import List, Optional
-
-import argon2
+from passlib.hash import argon2
 from sqlalchemy import ForeignKey, String
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, validates
@@ -11,6 +10,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
 from . import Base
+
 
 
 class User(Base):
