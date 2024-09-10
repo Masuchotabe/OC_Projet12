@@ -2,8 +2,8 @@ from functools import wraps
 
 from sqlalchemy.orm import Session
 
-from src.database import engine
-from src.utils import get_user_from_token
+from database import engine
+from utils import get_user_from_token
 
 
 def login_required(func):

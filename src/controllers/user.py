@@ -3,12 +3,12 @@ from click import pass_context
 from passlib.hash import argon2
 from sqlalchemy import select, Select
 
-from src.views.user import prompt_for_user, display_users, ask_for, show_error, ask_confirm
-from src.models import User, Team
+from views import prompt_for_user, display_users, ask_for, show_error, ask_confirm
+from models import User, Team
 from sqlalchemy.orm import Session
 
-from src.database import engine
-from src.decorators import login_required, permission_required, manage_session
+from database import engine
+from decorators import login_required, permission_required, manage_session
 
 user_cli = click.Group()
 
@@ -81,14 +81,25 @@ def get_users(user, session):
 
 @user_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def delete_user(user_id, user):
+@permission_required('delete_users')
+def delete_user(user, session):
     """Supprime un utilisateur"""
-    if not user.has_perm('delete_users'):
-        return
-    with Session(engine) as session:
-        user = session.query(User).get(user_id)
-        session.delete(user)
+    is_valid = False
+    target_user = None
+    while not is_valid:
+        target_username, stop = ask_for('Enter the username of the user')
+        if stop:
+            break
+        target_user = session.execute(Select(User).filter_by(username=target_username)).scalar()
+        if target_user:
+            is_valid = True
+        else:
+            show_error('Wrong username, try again.')
+
+    if target_user:
+        session.delete(target_user)
         session.commit()
 
 @user_cli.command()
@@ -163,12 +174,3 @@ def create_admin(session):
         ).first()
 
         User.create(session, user_data)
-
-
-def create_team(team_data):
-    """Création d'une equipe"""
-    with Session(engine) as session:
-        new_team = Team(name=team_data['name'])
-        session.add(new_team)
-        session.commit()
-        session.refresh(new_team)

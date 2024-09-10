@@ -1,14 +1,10 @@
-import time
-
 from rich.console import Console
-from rich.live import Live
-from rich.prompt import Prompt, Confirm
-from rich.table import Table
+from rich.prompt import Prompt
 
-console = Console()
+from .globals import display_table
+
 
 def prompt_for_user(actual_user=None, team_choice=None):
-    # console = Console()
     user_data = {}
     if actual_user:
         user_data['username'] = Prompt.ask('Username', default=actual_user.username)
@@ -40,21 +36,3 @@ def display_users(users):
                       user.first_name, user.last_name, user.phone, user.team))
     display_table(headers, rows, title)
 
-def display_table(headers, rows, title):
-    table = Table(title=title)
-    for header in headers:
-        table.add_column(header)
-    for row in rows:
-        table.add_row(*[str(e) if e else e for e in row])
-    console.print(table)
-
-def ask_for(message, password=False):
-    message = message + r" [dark_magenta]\[Enter \q to exit]"
-    val = Prompt.ask(message, password=password)
-    return val, val.strip() == r'\q'
-
-def ask_confirm(message):
-    return Confirm.ask(message, default=True)
-
-def show_error(error_message):
-    console.print(error_message, style="red")

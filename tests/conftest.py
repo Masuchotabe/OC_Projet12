@@ -6,9 +6,9 @@ from passlib.handlers.argon2 import argon2
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.models import User
-from src.settings import SECRET_KEY
-from src.models import Base, Team
+from models import User
+from settings import SECRET_KEY
+from models import Base, Team
 
 
 @pytest.fixture(scope='session')

@@ -1,6 +1,6 @@
 from sqlalchemy import Select, select, func
 
-from src.models import Team
+from models import Team
 
 
 def test_team_created(session):

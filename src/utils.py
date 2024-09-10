@@ -6,8 +6,8 @@ import jwt
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from src.models import User
-from src.settings import SECRET_KEY
+from models import User
+from settings import SECRET_KEY
 
 
 def get_user_from_token(token, session):
@@ -19,6 +19,7 @@ def get_user_from_token(token, session):
 
     Returns(User):
     """
+    print(token)
     if not token:
         return None
     try:

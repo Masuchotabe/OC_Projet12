@@ -3,9 +3,9 @@ from click.testing import CliRunner
 from passlib.hash import argon2
 from sqlalchemy import select
 
-from src.controllers import create_user
-from src.models import User
-from src.utils import get_user_from_token
+from controllers import create_user
+from models import User
+from utils import get_user_from_token
 
 @pytest.fixture
 def user_valid_data():
