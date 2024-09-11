@@ -27,9 +27,25 @@ cd /src
 Se connecter  
 `python main.py user-login`
 
+## LINUX 
+
 Vous recevrez un token si vos identifiants sont corrects. 
-Stocker le token dans une variable : 
-`mon_token=<VOTRE TOKEN>`
+Stocker votre token dans une variable : 
+```shell
+# linux
+mon_token=<VOTRE TOKEN>
+```
+```shell
+# windows (cmd)
+set mon_token=<VOTRE TOKEN>
+```
 
 Ensuite, appelez une commande de la manière suivante pour utiliser votre token : 
-`python main.py create-user $mon_token`
+```shell
+# linux
+python main.py create-user $mon_token
+```
+```shell
+# windows
+python main.py create-user %mon_token%
+```
