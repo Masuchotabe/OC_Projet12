@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 from passlib.hash import argon2
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, select
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, validates
 from sqlalchemy.orm import mapped_column
@@ -59,7 +59,7 @@ class User(Base):
         return password
 
     @classmethod
-    def validate_user_data(cls, user_data):
+    def validate_data(cls, user_data):
         """
         Validate some user data.
         :param user_data(dict): dict of user datas
@@ -75,19 +75,29 @@ class User(Base):
         return errors
 
     @classmethod
+    def get_users(cls, session):
+        """Retourne une liste des équipes"""
+        return session.scalars(select(cls)).all()
+
+    @classmethod
+    def get_user(cls, session, username):
+        """Retourne une équipe à partir de son username"""
+        return session.scalar(select(cls).where(cls.username == username))
+
+    @classmethod
     def create(cls, session, user_data):
         """
         Crée un user et le retourne
         Args:
-            session:
-            user_data:
+            session(sqlalchemy.orm.Session): session
+            user_data(dict): dict of user datas
 
         Returns:
 
         """
         user_data['password'] = argon2.hash(user_data['password'])
         user = cls()
-        user._update_data(session, user_data)
+        user._update_data(user_data)
 
         session.add(user)
         session.commit()
@@ -102,23 +112,22 @@ class User(Base):
         """
         if user_data['password']:
             user_data['password'] = argon2.hash(user_data['password'])
-        self._update_data(session, user_data)
+        self._update_data(user_data)
         session.commit()
 
-    def _update_data(self, session, user_data):
+
+    def _update_data(self, user_data):
         """Met à jour les données utilisateur"""
         for key, value in user_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
 
+    def delete(self, session):
+        """Supprimer l'utilisateur"""
+        session.delete(self)
+        session.commit()
 
     def has_perm(self, permission: str) -> bool:
         """retourne True si permission fait partie des permissions de son équipe"""
         return permission in self.team.permissions()
-
-
-
-
-
-

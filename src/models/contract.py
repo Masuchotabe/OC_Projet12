@@ -4,7 +4,7 @@ import enum
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Enum, String
+from sqlalchemy import Enum, String, select
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -15,9 +15,9 @@ from .user import User
 
 
 class ContractStatus(enum.Enum):
-    CREATED = 'Non commencé'
-    SIGNED = 'En cours'
-    FINISHED = 'Terminé'
+    CREATED = 'Created'
+    SIGNED = 'Signed'
+    FINISHED = 'Finished'
 
 
 class Contract(Base):
@@ -30,3 +30,66 @@ class Contract(Base):
     customer_id: Mapped[int] = mapped_column(ForeignKey("customer_table.id"))
     customer: Mapped["Customer"] = relationship(back_populates="contracts")
     events: Mapped[List["Event"]] = relationship(back_populates="contract")
+
+    @classmethod
+    def validate_status(cls, value):
+        """Assert status is in the choice"""
+        # if value not in ContractStatus.
+        if value not in [status.value for status in ContractStatus]:
+            raise ValueError('Status not in choice')
+        return value
+
+    @classmethod
+    def validate_data(cls, contract_data):
+        """
+        Valide les données d'un contrat
+
+        Args:
+            contract_data (dict): Dictionnaire contenant les données du contrat
+
+        Returns:
+            list: Une liste d'erreurs de validation, vide si les données sont valides
+        """
+        errors = []
+
+        for field_name, value in contract_data.items():
+            if hasattr(cls, 'validate_' + field_name):
+                try:
+                    contract_data[field_name] = getattr(cls, 'validate_' + field_name)(value)
+                except ValueError as e:
+                    errors.append(str(e))
+        if 'total_balance' in contract_data and 'remaining_balance' in contract_data:
+            if contract_data['remaining_balance'] > contract_data['total_balance']:
+                errors.append("Remaining balance can't be greater than total balance.")
+
+        return errors
+
+    @classmethod
+    def get_contracts(cls, session):
+        """Retourne une liste de tous les contrats"""
+        return session.scalars(select(cls)).all()
+
+    @classmethod
+    def get_contract(cls, session, id):
+        """Retourne un contrat à partir de son ID"""
+        return session.scalar(select(cls).where(cls.id == id))
+
+    @classmethod
+    def create(cls, session, contract_data):
+        """Crée un contrat et le retourne"""
+        contract = cls(**contract_data)
+        session.add(contract)
+        session.commit()
+        return contract
+
+    def update(self, session, contract_data):
+        """Met à jour un contrat"""
+        for key, value in contract_data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        session.commit()
+
+    def delete(self, session):
+        """Supprime le contrat"""
+        session.delete(self)
+        session.commit()

@@ -19,7 +19,7 @@ def user_login(session):
     username, password = login_view()
     user = session.query(User).filter_by(username=username).first()
     if user and argon2.verify(password, user.password):
-        token = create_token(payload_data={"user_id": user.id})
+        token = create_token(payload_data={"username": user.username})
         display_token(token)
         return
     show_error('Wrong username or password')

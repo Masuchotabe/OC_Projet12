@@ -19,7 +19,6 @@ def get_user_from_token(token, session):
 
     Returns(User):
     """
-    print(token)
     if not token:
         return None
     try:
@@ -31,8 +30,8 @@ def get_user_from_token(token, session):
         print('token is invalid')
         return None
 
-    user_id = payload.get("user_id")
-    user = session.scalar(select(User).where(User.id == user_id))
+    username = payload.get("username")
+    user = User.get_user(session, username)
     return user
 
 

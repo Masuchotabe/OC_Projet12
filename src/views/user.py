@@ -1,4 +1,3 @@
-from rich.console import Console
 from rich.prompt import Prompt
 
 from .globals import display_table

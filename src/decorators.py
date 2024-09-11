@@ -6,6 +6,18 @@ from database import engine
 from utils import get_user_from_token
 
 
+def manage_session(func):
+    """Intègre une session s'il n'y en pas déjà."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if kwargs.get("session"):
+            return func(*args, **kwargs)
+        with Session(engine) as session:
+            kwargs['session'] = session
+            return func(*args, **kwargs)
+    return wrapper
+
+
 def login_required(func):
     """decorator to ckeck if user is logged in"""
     @wraps(func)
@@ -33,14 +45,3 @@ def permission_required(permission):
                     return func(*args, **kwargs)
         return wrapper
     return decorator
-
-def manage_session(func):
-    """Intègre une session s'il n'y en pas déjà."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if kwargs.get("session"):
-            return func(*args, **kwargs)
-        with Session(engine) as session:
-            kwargs['session'] = session
-            return func(*args, **kwargs)
-    return wrapper

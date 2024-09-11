@@ -25,20 +25,9 @@ def create_user(user, session):
         session(Session): session sqlalchemy
     """
     teams_name = [team.name for team in Team.get_teams(session)]
-    try_again = True
-    user_data = dict()
-    while try_again:
-
-        user_data = prompt_for_user(team_choice=teams_name)
-        errors = User.validate_user_data(user_data)
-        if not errors:
-            break
-        for error in errors:
-            show_error(error)
-        try_again = ask_confirm('Try again ?')
+    user_data = ask_for_user_data(session=session, teams_name=teams_name)
 
     if user_data:
-        user_data['team'] = Team.get_team(session, user_data['team_name'])
         User.create(session, user_data)
 
 
@@ -49,17 +38,7 @@ def create_user(user, session):
 @permission_required('read_user')
 def get_user(user, session):
     """Voir le détail d'un utilisateur"""
-    is_valid = False
-    target_user = None
-    while not is_valid:
-        target_username, stop = ask_for('Enter the username of the user')
-        if stop:
-            break
-        target_user = session.execute(Select(User).filter_by(username=target_username)).scalar()
-        if target_user:
-            is_valid = True
-        else:
-            show_error('Wrong username, try again.')
+    target_user = ask_for_user(session)
 
     if target_user:
         display_users([target_user])
@@ -75,7 +54,7 @@ def get_users(user, session):
         user(User): user connecté via la token
         session(Session): session sqlalchemy
     """
-    users = session.scalars(select(User)).all()
+    users = User.get_users(session)
     display_users(users)
 
 
@@ -92,15 +71,14 @@ def delete_user(user, session):
         target_username, stop = ask_for('Enter the username of the user')
         if stop:
             break
-        target_user = session.execute(Select(User).filter_by(username=target_username)).scalar()
+        target_user = User.get_user(session, username=target_username)
         if target_user:
             is_valid = True
         else:
             show_error('Wrong username, try again.')
 
     if target_user:
-        session.delete(target_user)
-        session.commit()
+        target_user.delete(session)
 
 @user_cli.command()
 @click.argument('token')
@@ -109,36 +87,15 @@ def delete_user(user, session):
 @permission_required('update_user')
 def update_user(user, session):
     """Met à jour un user en fonction de l'id et des données"""
-    is_valid = False
-    target_user = None
-    while not is_valid:
-        target_username, stop = ask_for('Enter the username of the user')
-        if stop:
-            break
-        target_user = session.execute(Select(User).filter_by(username=target_username)).scalar()
-        if target_user:
-            is_valid = True
-        else:
-            show_error('Wrong username, try again.')
 
+    target_user = ask_for_user(session)
     if not target_user:
         return
 
     teams_name = [team.name for team in Team.get_teams(session)]
-    try_again = True
-    user_data = dict()
-    while try_again:
+    user_data = ask_for_user_data(session, target_user, teams_name)
 
-        user_data = prompt_for_user(team_choice=teams_name)
-        errors = User.validate_user_data(user_data)
-        if not errors:
-            break
-        for error in errors:
-            show_error(error)
-        try_again = ask_confirm('Try again ?')
     if user_data:
-        user_data['team'] = Team.get_team(session, user_data['team_name'])
-
         target_user.update(session, user_data)
 
 
@@ -152,7 +109,7 @@ def create_admin(session):
         user(User): user connecté via le token
         session(Session): session sqlalchemy
     """
-    if session.scalars(Select(User)).all():
+    if User.get_users(session):
         show_error("Initialization failed: Users already exist in the database. This feature is only available for an empty database.")
         return
 
@@ -161,7 +118,7 @@ def create_admin(session):
     while try_again:
 
         user_data = prompt_for_user()
-        errors = User.validate_user_data(user_data)
+        errors = User.validate_data(user_data)
         if not errors:
             break
         for error in errors:
@@ -169,8 +126,40 @@ def create_admin(session):
         try_again = ask_confirm('Try again ?')
 
     if user_data:
-        user_data['team'] = session.scalars(
-            select(Team).where(Team.name=="Management team")
-        ).first()
+        user_data['team'] = Team.get_team(session, "Management team")
 
         User.create(session, user_data)
+
+def ask_for_user(session):
+    is_valid = False
+    target_user = None
+    while not is_valid:
+        target_username, stop = ask_for('Enter the username of the user')
+        if stop:
+            break
+        target_user = User.get_user(session, username=target_username)
+        if target_user:
+            is_valid = True
+        else:
+            show_error('Wrong username, try again.')
+
+    return target_user
+
+def ask_for_user_data(session, user=None, teams_name=None):
+    try_again = True
+    user_data = dict()
+    while try_again:
+
+        user_data = prompt_for_user(actual_user=user, team_choice=teams_name)
+        errors = User.validate_data(user_data)
+        if user_data['team_name'] and not Team.get_team(session, user_data['team_name']):
+            errors.append('Wrong team name')
+        elif user_data['team_name']:
+            user_data['team'] = Team.get_team(session, user_data['team_name'])
+        if not errors:
+            break
+        for error in errors:
+            show_error(error)
+        try_again = ask_confirm('Try again ?')
+
+    return user_data

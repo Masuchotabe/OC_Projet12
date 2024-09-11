@@ -4,7 +4,7 @@ import enum
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import Enum, String
+from sqlalchemy import Enum, String, select
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -27,3 +27,77 @@ class Event(Base):
     contract: Mapped["Contract"] = relationship(back_populates="events")
     support_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     support_contact: Mapped["User"] = relationship(back_populates="managed_events")
+
+    @classmethod
+    def validate_event_start_date(cls, value):
+        """validate event start date"""
+        try:
+            return datetime.strptime(value, '%Y-%m-%d %H:%M')
+        except ValueError:
+            raise ValueError("""The date should respect YYYY-MM-DD HH:MM format.""")
+
+    @classmethod
+    def validate_event_end_date(cls, value):
+        """validate event start date"""
+        try:
+            return datetime.strptime(value, '%Y-%m-%d %H:%M')
+        except ValueError:
+            raise ValueError("""The date should respect YYYY-MM-DD HH:MM format.""")
+
+    @classmethod
+    def validate_data(cls, event_data):
+        """
+        Valide les données d'un événement.
+
+        Args:
+            event_data (dict): Dictionnaire contenant les données de l'événement.
+
+        Returns:
+            list: Une liste d'erreurs de validation.
+        """
+        errors = []
+
+        for field_name, value in event_data.items():
+            if hasattr(cls, 'validate_' + field_name):
+                try:
+                    event_data[field_name] = getattr(cls, 'validate_' + field_name)(value)
+                except ValueError as e:
+                    errors.append(str(e))
+        if event_data['event_start_date'] and event_data['event_end_date']:
+            if event_data['event_start_date'] > event_data['event_end_date']:
+                errors.append('Event end date must be after event start date.')
+
+        return errors
+
+    @classmethod
+    def get_events(cls, session):
+        """Retourne une liste de tous les événements"""
+        return session.scalars(select(cls)).all()
+
+    @classmethod
+    def get_event(cls, session, id):
+        """Retourne un événement à partir de son ID"""
+        return session.scalar(select(cls).where(cls.id == id))
+
+    @classmethod
+    def create(cls, session, event_data):
+        """Crée un événement et le retourne"""
+        event = cls(**event_data)
+        session.add(event)
+        session.commit()
+        return event
+
+
+    def update(self, session, event_data):
+        """Met à jour un événement"""
+        for key, value in event_data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+        session.commit()
+
+
+    def delete(self, session):
+        """Supprime l'événement"""
+        session.delete(self)
+        session.commit()
+

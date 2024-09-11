@@ -1,87 +1,101 @@
-from datetime import datetime
-
 import click
-from passlib.hash import argon2
 
-from models import Customer
-from sqlalchemy.orm import Session
+from models import Customer, User
 
-from database import engine
-from decorators import login_required
+from decorators import login_required, manage_session, permission_required
+from views import show_error, ask_confirm, ask_for
+from views.customer import prompt_for_customer, display_customers
 
-# @click.group()
-# def customer_cli():
-#     pass
 customer_cli = click.Group()
 
 @customer_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def create_customer(customer_data, user):
+@permission_required('create_customer')
+def create_customer(user, session):
     """Création d'un client"""
-    if not user.has_perm('create_customer'):
-        return
-    with Session(engine) as session:
-        new_customer = Customer(
-            name=customer_data['name'],
-            email=customer_data['email'],
-            phone=customer_data.get('phone'),
-            company_name=customer_data['company_name'],
-            date_created=datetime.now(),
-            date_modified=datetime.now(),
-            sales_contact_id=customer_data['sales_contact_id']
-        )
-        session.add(new_customer)
-        session.commit()
+    customer_data = ask_for_customer_data(session)
+
+    if customer_data:
+        Customer.create(session, customer_data)
+
 
 @customer_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def get_customer(customer_id, user):
+@permission_required('get_customer')
+def get_customer(user, session):
     """Retourne un client à partir de son ID"""
-    if not user.has_perm('get_customer'):
-        return
-    with Session(engine) as session:
-        customer = session.query(Customer).get(customer_id)
-        return customer
+    target_customer = ask_for_customer(session)
+
+    if target_customer:
+        display_customers([target_customer])
 
 @customer_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def get_customers(user):
+@permission_required('list_customers')
+def get_customers(user, session):
     """Retourne tous les clients"""
-    if not user.has_perm('list_customers'):
-        return
-    with Session(engine) as session:
-        customers = session.query(Customer).all()
-        return customers
+    customers = Customer.get_customers(session)
+    display_customers(customers)
 
 @customer_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def delete_customer(customer_id, user):
+@permission_required('delete_customers')
+def delete_customer(user, session):
     """Supprime un client"""
-    if not user.has_perm('delete_customer'):
-        return
-    with Session(engine) as session:
-        customer = session.query(Customer).get(customer_id)
-        session.delete(customer)
-        session.commit()
+    target_customer = ask_for_customer(session)
+
+    if target_customer:
+        target_customer.delete()
 
 @customer_cli.command()
 @click.argument('token')
+@manage_session
 @login_required
-def update_customer(customer_id, customer_data, user):
+@permission_required('update_customer')
+def update_customer(user, session):
     """Met à jour un client"""
-    if not user.has_perm('update_customer'):
-        return
-    with Session(engine) as session:
-        customer = session.query(Customer).get(customer_id)
+    target_customer = ask_for_customer(session)
 
-        customer.name = customer_data.get('name') or customer.name
-        customer.email = customer_data.get('email') or customer.email
-        customer.phone = customer_data.get('phone') or customer.phone
-        customer.company_name = customer_data.get('company_name') or customer.company_name
-        customer.date_modified = datetime.now()
-        customer.sales_contact_id = customer_data.get('sales_contact_id') or customer.sales_contact_id
-        session.commit()
+    customer_data = ask_for_customer_data(session, target_customer)
+    if customer_data:
+        target_customer.update(session, customer_data)
+
+def ask_for_customer(session):
+    is_valid = False
+    target_customer = None
+    while not is_valid:
+        target_email, stop = ask_for('Enter the email of the customer')
+        if stop:
+            break
+        target_customer = Customer.get_customer(session, email=target_email)
+        if target_customer:
+            is_valid = True
+        else:
+            show_error('Wrong username, try again.')
+    return target_customer
+
+def ask_for_customer_data(session, customer=None):
+    try_again = True
+    customer_data = dict()
+    while try_again:
+
+        customer_data = prompt_for_customer(customer)
+        errors = Customer.validate_data(customer_data)
+        if customer_data['sales_contact_username'] and not User.get_user(session,customer_data['sales_contact_username']):
+            errors.append('Wrong username for sales contact.')
+        elif customer_data['sales_contact_username']:
+            customer_data['sales_contact'] = User.get_user(session, customer_data['sales_contact_username'])
+        if not errors:
+            break
+        for error in errors:
+            show_error(error)
+        try_again = ask_confirm('Try again ?')
+    return customer_data
