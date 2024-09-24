@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from database import engine
 from utils import get_user_from_token
+from views import show_error
 
 
 def manage_session(func):
@@ -40,7 +41,7 @@ def permission_required(permission):
             user = kwargs.get("user")
             if user:
                 if not user.has_perm(permission):
-                    return "You do not have permission to access this feature"
+                    show_error("You do not have permission to access this feature")
                 else:
                     return func(*args, **kwargs)
         return wrapper

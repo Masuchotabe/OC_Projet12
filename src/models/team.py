@@ -33,7 +33,8 @@ class Team(Base):
         if self.name == "Support team":
             return []
         if self.name == "Sales team":
-            return []
+            return ['create_customer',
+                    'list_customers']
 
     @classmethod
     def get_teams(cls, session):

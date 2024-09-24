@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import enum
+import re
 from datetime import datetime
-from typing import List, Optional, re
+from typing import List, Optional
 
 from sqlalchemy import Enum, String, select
 from sqlalchemy import ForeignKey
@@ -23,7 +24,7 @@ class Customer(Base):
     phone: Mapped[Optional[str]] = mapped_column(String(20))
     company_name: Mapped[str] = mapped_column(String(80))
     date_created: Mapped[datetime] = mapped_column(default=datetime.now)
-    date_modified: Mapped[datetime] = mapped_column(onupdate=datetime.now)
+    date_modified: Mapped[datetime] = mapped_column(default=datetime.now, onupdate=datetime.now)
     sales_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     sales_contact: Mapped["User"] = relationship(back_populates="customers")
     contracts: Mapped[List["Contract"]] = relationship(back_populates="customer")
