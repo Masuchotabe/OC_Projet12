@@ -19,6 +19,8 @@ def user_valid_data():
 
 def test_user_login(session, user, token):
     token_user = get_user_from_token(token, session)
+    print(token_user)
+    print(user)
     assert token_user.id == user.id
 
 def test_create_user(session, user_valid_data):
@@ -31,5 +33,5 @@ def test_create_user(session, user_valid_data):
 
 def test_data_validation(user_valid_data):
     user_valid_data['password'] = 'password_incorrect'
-    errors = User.validate_user_data(user_valid_data)
+    errors = User.validate_data(user_valid_data)
     assert len(errors) == 1

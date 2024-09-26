@@ -49,7 +49,7 @@ def user(session):
 
 @pytest.fixture(scope='function')
 def token(user):
-    payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) + timedelta(hours=1)}
+    payload = {'username':user.username, 'exp':datetime.now(tz=timezone.utc) + timedelta(hours=1)}
     token = jwt.encode(payload=payload, key=SECRET_KEY)
     yield token
 
@@ -58,7 +58,6 @@ def invalid_token(user):
     payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
     token = jwt.encode(payload=payload, key=SECRET_KEY)
     yield token
-    # session.rollback()
 
 
 

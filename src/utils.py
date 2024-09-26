@@ -19,6 +19,7 @@ def get_user_from_token(token, session):
 
     Returns(User):
     """
+
     if not token:
         return None
     try:
