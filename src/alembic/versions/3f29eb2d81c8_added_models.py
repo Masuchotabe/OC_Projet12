@@ -10,6 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+from models import init_team, Team
 
 # revision identifiers, used by Alembic.
 revision: str = '3f29eb2d81c8'
@@ -24,6 +25,15 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=30), nullable=False),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.execute(
+        Team.__table__.insert().values(name="Management team")
+    )
+    op.execute(
+        Team.__table__.insert().values(name="Sales team")
+    )
+    op.execute(
+        Team.__table__.insert().values(name="Support team")
     )
     op.create_table('user_table',
     sa.Column('id', sa.Integer(), nullable=False),

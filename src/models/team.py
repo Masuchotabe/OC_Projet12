@@ -48,7 +48,7 @@ class Team(Base):
 
 @event.listens_for(Team.__table__, "after_create")
 def init_team(target, connection, **kwargs):
-    """listen for the 'after_create' event"""
+    """listen for the 'after_create' event --> only if we use metadata.create_all"""
     connection.execute(insert(target).values(name="Management team"))
     connection.execute(insert(target).values(name="Sales team"))
     connection.execute(insert(target).values(name="Support team"))
