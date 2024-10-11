@@ -22,19 +22,37 @@ class Team(Base):
 
     def permissions(self):
         """retourne les permissions de la team"""
+        base_perms = [
+            'list_contracts',
+            'read_contract',
+            'list_events',
+            'read_event',
+            'list_customers',
+            'read_customer',
+        ]
         if self.name == "Management team":
-            return [
+            return base_perms + [
                 'create_user',
                 'read_user',
                 'list_users',
-                'delete_users',
+                'delete_user',
                 'update_user',
+                'create_contract',
+                'update_contract',
+                'update_event',
+            ]
+        if self.name == "Sales team":
+            return base_perms + [
+                'create_customer',
+                'update_customer',
+                'update_contract',
+                'create_event',
             ]
         if self.name == "Support team":
-            return []
-        if self.name == "Sales team":
-            return ['create_customer',
-                    'list_customers']
+            return base_perms + [
+                'update_event',
+            ]
+
 
     @classmethod
     def get_teams(cls, session):

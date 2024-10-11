@@ -38,7 +38,7 @@ def get_user_from_token(token, session):
 
 def create_token(payload_data):
     """Create a JWT token with the given payload_data dict"""
-    expiration_date = datetime.now(tz=timezone.utc) + timedelta(hours=1)
+    expiration_date = datetime.now(tz=timezone.utc) + timedelta(hours=4)
     payload_data.update({"exp": expiration_date})
     return jwt.encode(payload=payload_data, key=SECRET_KEY)
 

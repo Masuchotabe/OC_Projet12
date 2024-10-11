@@ -90,10 +90,11 @@ def ask_for_customer_data(session, customer=None):
 
         customer_data = prompt_for_customer(customer)
         errors = Customer.validate_data(customer_data)
-        # if customer_data['sales_contact_username'] and not User.get_user(session,customer_data['sales_contact_username']):
-        #     errors.append('Wrong username for sales contact.')
-        # elif customer_data['sales_contact_username']:
-        #     customer_data['sales_contact'] = User.get_user(session, customer_data['sales_contact_username'])
+        if customer_data.get('sales_contact_username') and not User.get_user(session,customer_data['sales_contact_username']):
+            errors.append('Wrong username for sales contact.')
+        elif customer_data.get('sales_contact_username'):
+            customer_data['sales_contact'] = User.get_user(session, customer_data['sales_contact_username'])
+
         if not errors:
             break
         for error in errors:

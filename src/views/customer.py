@@ -21,7 +21,6 @@ def prompt_for_customer(actual_customer=None):
         customer_data['email'] = Prompt.ask('Email')
         customer_data['company_name'] = Prompt.ask('Company')
         customer_data['phone'] = Prompt.ask('Phone')
-        customer_data['sales_contact_username'] = Prompt.ask('Sales contact username')
 
     return customer_data
 

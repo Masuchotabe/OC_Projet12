@@ -151,6 +151,8 @@ def ask_for_user_data(session, user=None, teams_name=None):
     while try_again:
 
         user_data = prompt_for_user(actual_user=user, team_choice=teams_name)
+        if user and not user_data['password']: # delete password field if it's empty and it's an update
+            user_data.pop('password')
         errors = User.validate_data(user_data)
         if user_data['team_name'] and not Team.get_team(session, user_data['team_name']):
             errors.append('Wrong team name')
@@ -162,4 +164,4 @@ def ask_for_user_data(session, user=None, teams_name=None):
             show_error(error)
         try_again = ask_confirm('Try again ?')
 
-    return user_data
+    return user_data if try_again else None

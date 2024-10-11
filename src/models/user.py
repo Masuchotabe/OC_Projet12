@@ -30,6 +30,9 @@ class User(Base):
     customers: Mapped[List["Customer"]] = relationship("Customer", back_populates="sales_contact")
     managed_events: Mapped[List["Event"]] = relationship("Event", back_populates="support_contact")
 
+    def __str__(self):
+        return f"{self.username} ({self.first_name} {self.last_name})"
+
     @classmethod
     def validate_username(cls, username):
         """Validate username"""
@@ -110,7 +113,7 @@ class User(Base):
             session(session): session de db
             user_data: Données utilisateur
         """
-        if user_data['password']:
+        if user_data.get('password'):
             user_data['password'] = argon2.hash(user_data['password'])
         self._update_data(user_data)
         session.commit()

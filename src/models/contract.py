@@ -77,17 +77,23 @@ class Contract(Base):
     @classmethod
     def create(cls, session, contract_data):
         """Crée un contrat et le retourne"""
-        contract = cls(**contract_data)
+        contract = cls()
+        contract._update_data(contract_data)
+
         session.add(contract)
         session.commit()
         return contract
 
     def update(self, session, contract_data):
         """Met à jour un contrat"""
-        for key, value in contract_data.items():
+        self._update_data(contract_data)
+        session.commit()
+
+    def _update_data(self, customer_data):
+        """Met à jour les données du client"""
+        for key, value in customer_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-        session.commit()
 
     def delete(self, session):
         """Supprime le contrat"""

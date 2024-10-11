@@ -22,6 +22,7 @@ contract_cli = click.Group()
 def create_contract(user, session):
     """Création d'un contrat"""
     contract_data = ask_for_contract_data(session)
+    # target_customer = ask_for_customer(session)
 
     if contract_data:
         Contract.create(session, contract_data)
@@ -98,7 +99,6 @@ def ask_for_contract_data(session, contract=None):
         status_choices = [status.value for status in ContractStatus]
         contract_data = prompt_for_contract(contract, status_choices)
 
-        # Validation spécifique à Contract (à implémenter dans le modèle Contract)
         errors = Contract.validate_data(contract_data)
 
         if contract_data['customer_email'] and not Customer.get_customer(session, email=contract_data['customer_email']):

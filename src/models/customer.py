@@ -29,6 +29,9 @@ class Customer(Base):
     sales_contact: Mapped["User"] = relationship(back_populates="customers")
     contracts: Mapped[List["Contract"]] = relationship(back_populates="customer")
 
+    def __str__(self):
+        return self.name
+
     @classmethod
     def validate_email(cls, email):
         """Validate email"""
