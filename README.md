@@ -49,3 +49,8 @@ python main.py create-user $mon_token
 # windows
 python main.py create-user %mon_token%
 ```
+
+
+
+### To improve 
+- improve customer selection for contract creation 

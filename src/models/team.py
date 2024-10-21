@@ -46,6 +46,7 @@ class Team(Base):
                 'create_customer',
                 'update_customer',
                 'update_contract',
+                'update_only_my_contract',
                 'create_event',
             ]
         if self.name == "Support team":

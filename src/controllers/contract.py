@@ -3,6 +3,7 @@ from datetime import datetime
 import click
 from passlib.hash import argon2
 
+from controllers.customer import ask_for_customer
 from models import Contract, Customer
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,6 @@ contract_cli = click.Group()
 def create_contract(user, session):
     """Création d'un contrat"""
     contract_data = ask_for_contract_data(session)
-    # target_customer = ask_for_customer(session)
 
     if contract_data:
         Contract.create(session, contract_data)
@@ -68,28 +68,35 @@ def delete_contract(user, session):
 @permission_required('update_contract')
 def update_contract(user, session):
     """Met à jour un contrat"""
+
+
     target_contract = ask_for_contract(session)
+    if not target_contract:
+        return
+    print(f"{target_contract=}")
+    print(f"{target_contract.customer=}")
+    print(f"{target_contract.customer.sales_contact=}")
+    print(f'{user=}')
+    if user.has_perm('update_only_my_contract') and target_contract.customer.sales_contact != user:
+        return show_error("You don't have permission to edit this contract")
 
     contract_data = ask_for_contract_data(session, target_contract)
     if contract_data:
         target_contract.update(session, contract_data)
 
 def ask_for_contract(session):
-    is_valid = False
+    try_again = True
     target_contract = None
-    while not is_valid:
-        try:
-            target_id = int(ask_for('Enter the ID of the contract')[0])
-        except ValueError:
-            show_error('ID must be an integer. Please try again.')
-            continue
+    while try_again:
 
+        target_id = ask_for('Enter the ID of the contract', output_type=int)
         if target_id:
             target_contract = Contract.get_contract(session, id=target_id)
             if target_contract:
-                is_valid = True
+                break
             else:
-                show_error('Wrong ID, try again.')
+                show_error('Wrong ID.')
+        try_again = ask_confirm('Try again ?')
     return target_contract
 
 def ask_for_contract_data(session, contract=None):

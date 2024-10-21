@@ -1,5 +1,5 @@
 from rich.console import Console
-from rich.prompt import Prompt, Confirm
+from rich.prompt import Prompt, Confirm, IntPrompt, FloatPrompt
 from rich.table import Table
 
 console = Console()
@@ -13,10 +13,21 @@ def display_table(headers, rows, title):
     console.print(table)
 
 
-def ask_for(message, password=False):
-    message = message + r" [dark_magenta]\[Enter \q to exit]"
-    val = Prompt.ask(message, password=password)
-    return val, val.strip() == r'\q'
+def ask_for(message, password=False, output_type=str):
+    # message = message + r" [dark_magenta]\[Enter \q to exit]"
+    if output_type == str:
+        val = Prompt.ask(message, password=password)
+    elif output_type == int:
+        val = IntPrompt.ask(message, password=password)
+    elif output_type == bool:
+        val = Confirm.ask(message, default=True)
+    elif output_type == float:
+        val = FloatPrompt.ask(message, password=password)
+    else:
+        raise ValueError(f"Invalid output type: {output_type}")
+    return val
+    # return val, val.strip() == r'\q'
+
 
 
 def ask_confirm(message):
