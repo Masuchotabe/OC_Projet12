@@ -64,7 +64,8 @@ def delete_customer(user, session):
 def update_customer(user, session):
     """Met à jour un client"""
     target_customer = ask_for_customer(session)
-
+    if user.has_perm('update_only_my_customers') and target_customer.sales_contact != user:
+        return show_error("You don't have permission to edit this customer")
     customer_data = ask_for_customer_data(session, target_customer)
     if customer_data:
         target_customer.update(session, customer_data)

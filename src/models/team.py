@@ -45,13 +45,15 @@ class Team(Base):
             return base_perms + [
                 'create_customer',
                 'update_customer',
+                'update_only_my_customers',
                 'update_contract',
-                'update_only_my_contract',
+                'update_only_my_contracts',
                 'create_event',
             ]
         if self.name == "Support team":
             return base_perms + [
                 'update_event',
+                'update_only_my_events',
             ]
 
 

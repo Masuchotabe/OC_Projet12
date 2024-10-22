@@ -72,7 +72,8 @@ def delete_event(user, session):
 def update_event(user, session):
     """Met à jour un événement"""
     target_event = ask_for_event(session)
-
+    if user.has_perm('update_only_my_events') and target_event.support_contact != user:
+        return show_error("You don't have permission to edit this event")
     event_data = ask_for_event_data(session, target_event)
     if event_data:
         target_event.update(session, event_data)
