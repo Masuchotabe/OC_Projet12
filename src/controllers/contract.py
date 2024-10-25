@@ -73,10 +73,7 @@ def update_contract(user, session):
     target_contract = ask_for_contract(session)
     if not target_contract:
         return
-    print(f"{target_contract=}")
-    print(f"{target_contract.customer=}")
-    print(f"{target_contract.customer.sales_contact=}")
-    print(f'{user=}')
+
     if user.has_perm('update_only_my_contracts') and target_contract.customer.sales_contact != user:
         return show_error("You don't have permission to edit this contract")
 

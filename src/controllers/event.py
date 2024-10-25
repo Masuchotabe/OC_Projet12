@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from database import engine
 from decorators import login_required, manage_session, permission_required
+from models.contract import ContractStatus
 from views import show_error, ask_for, ask_confirm
 from views.event import prompt_for_event, display_events
 
@@ -27,6 +28,15 @@ def create_event(user, session):
     """Création d'un événement"""
     event_data = ask_for_event_data(session)
 
+    contract = event_data.get('contract')
+
+
+
+    if contract and contract.customer.sales_contact != user:
+        return show_error(f"You don't have permission to add events to this contract (client {contract.customer})")
+    elif contract and contract.status != ContractStatus.SIGNED:
+
+        return show_error("Contrat must be Signed or not be Finished")
     if event_data:
         Event.create(session, event_data)
 
@@ -98,8 +108,9 @@ def ask_for_event(session):
 
 def ask_for_event_data(session, event=None):
     try_again = True
-    event_data = dict()
     while try_again:
+        event_data = dict()
+
         event_data = prompt_for_event(event)
 
         errors = Event.validate_data(event_data)
@@ -108,7 +119,8 @@ def ask_for_event_data(session, event=None):
             errors.append('Wrong contract ID.')
         elif event_data['contract_id']:
             event_data['contract'] = Contract.get_contract(session, id=event_data['contract_id'])
-
+        elif not event and not event_data['contract_id']:
+            errors.append('You must enter a contract ID.')
         if event_data['support_contact_username'] and not User.get_user(session, event_data['support_contact_username']):
             errors.append('Wrong username for support contact.')
         elif event_data['support_contact_username']:

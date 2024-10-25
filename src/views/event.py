@@ -25,7 +25,7 @@ def prompt_for_event(event=None):
 
 
 def display_events(events):
-    headers = ['ID', 'Start Date', 'End Date', 'Location', 'Attendees', 'Notes', 'Contract ID', 'Support Contact']
+    headers = ['ID', 'Start Date', 'End Date', 'Location', 'Attendees', 'Notes', 'Contract ID', 'Customer', 'Support Contact']
     title = "Events" if len(events) > 1 else "Event"
     rows = []
     for event in events:
@@ -38,6 +38,7 @@ def display_events(events):
                 event.attendees,
                 event.notes,
                 event.contract_id,
+                event.contract.customer if event.contract else None,
                 event.support_contact.username if event.support_contact else None
             )
         )

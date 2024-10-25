@@ -22,11 +22,11 @@ class Event(Base):
     event_end_date: Mapped[datetime]
     location: Mapped[str] = mapped_column(String(250))
     attendees: Mapped[int]
-    notes: Mapped[str] = mapped_column(String(1000))
+    notes: Mapped[Optional[str]] = mapped_column(String(1000))
     contract_id: Mapped[int] = mapped_column(ForeignKey("contract_table.id"))
     contract: Mapped["Contract"] = relationship(back_populates="events")
-    support_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
-    support_contact: Mapped["User"] = relationship(back_populates="managed_events")
+    support_contact_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
+    support_contact: Mapped[Optional["User"]] = relationship(back_populates="managed_events")
 
     @classmethod
     def validate_event_start_date(cls, value):
@@ -82,19 +82,28 @@ class Event(Base):
     @classmethod
     def create(cls, session, event_data):
         """Crée un événement et le retourne"""
-        event = cls(**event_data)
+        event = cls()
+        event._update_data(event_data)
+
         session.add(event)
         session.commit()
         return event
 
-
     def update(self, session, event_data):
-        """Met à jour un événement"""
+        """
+        Met à jour un évènement
+        Args :
+            session (Session) : session
+            event_data (dict) : dict of event datas
+        """
+        self._update_data(event_data)
+        session.commit()
+
+    def _update_data(self, event_data):
+        """Met à jour les données du client"""
         for key, value in event_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-        session.commit()
-
 
     def delete(self, session):
         """Supprime l'événement"""
