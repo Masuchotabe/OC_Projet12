@@ -54,3 +54,5 @@ python main.py create-user %mon_token%
 
 ### To improve 
 - improve customer selection for contract creation 
+- improve separation between orm and models
+- 
