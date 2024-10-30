@@ -1,10 +1,12 @@
 import json
+from datetime import datetime
 
 import click
 from sqlalchemy import create_engine, inspect, text, insert
 from sqlalchemy.orm import Session
 
 from models import Base, User, Contract, Customer, Event
+from models.contract import ContractStatus
 from settings import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST
 
 DATABASE_URL = f'mysql+mysqldb://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'
@@ -110,8 +112,8 @@ def create_sample_data():
                     'team_id': '3',
                 },
             ]
-            for user in user_to_create:
-                User.create(session, **user)
+            for user_data in user_to_create:
+                User.create(session, user_data)
 
         if not Customer.get_customers(session):
             customer_to_create = [
@@ -144,6 +146,87 @@ def create_sample_data():
                     'sales_contact_id': 2,
                 }
             ]
+            for customer_data in customer_to_create:
+                Customer.create(session, customer_data)
 
+        if not Contract.get_contracts(session):
+            contract_to_create = [
+                {
+                    'total_balance': '2500',
+                    'remaining_balance': '2500',
+                    'status': ContractStatus.CREATED,
+                    'customer_id': 1,
+                },
+                {
+                    'total_balance': '4950',
+                    'remaining_balance': '2000',
+                    'status': ContractStatus.SIGNED,
+                    'customer_id': 2,
+                },
+                {
+                    'total_balance': '1700',
+                    'remaining_balance': '0',
+                    'status': ContractStatus.FINISHED,
+                    'customer_id': 3,
+                },
+                {
+                    'total_balance': '1234',
+                    'remaining_balance': '1000',
+                    'status': ContractStatus.CREATED,
+                    'customer_id': 4,
+                }
+            ]
+            for contract_data in contract_to_create:
+                Contract.create(session, contract_data)
 
+        if not Event.get_events(session):
+            events_to_create = [
+                {
+                    'event_start_date': datetime(2024, 11, 5, 9, 0),
+                    'event_end_date': datetime(2024, 11, 5, 17, 0),
+                    'location': 'Paris',
+                    'attendees': 200,
+                    'notes': "Salon de l'agriculture",
+                    'contract_id': 1,
+                    'support_contact_id': 3,  # msupports
+                },
+                {
+                    'event_start_date': datetime(2024, 12, 1, 10, 0),
+                    'event_end_date': datetime(2024, 12, 1, 18, 0),
+                    'location': 'France',
+                    'attendees': 150,
+                    'notes': 'Conférence en visio sur les mondes imaginaires',
+                    'contract_id': 2,
+                    'support_contact_id': 3,  # msupports
+                },
+                {
+                    'event_start_date': datetime(2025, 1, 15, 8, 30),
+                    'event_end_date': datetime(2025, 1, 15, 17, 30),
+                    'location': 'Tours',
+                    'attendees': 300,
+                    'notes': 'PyCon FR',
+                    'contract_id': 3,
+                    'support_contact_id': None,  # Pas de support assigné
+                },
+                {
+                    'event_start_date': datetime(2025, 2, 10, 9, 0),
+                    'event_end_date': datetime(2025, 2, 10, 16, 0),
+                    'location': 'Lille',
+                    'attendees': 1000,
+                    'notes': 'Salon du beau temps',
+                    'contract_id': 4,
+                    'support_contact_id': 6,  # dcoudre
+                },
+                {
+                    'event_start_date': datetime(2025, 6, 20, 14, 0),
+                    'event_end_date': datetime(2025, 6, 21, 3, 0),
+                    'location': 'Château de Versailles',
+                    'attendees': 500,
+                    'notes': "Gala de fin d'année",
+                    'contract_id': 1,
+                    'support_contact_id': 3,  # msupports
+                },
+            ]
 
+            for event_data in events_to_create:
+                Event.create(session, event_data)

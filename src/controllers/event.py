@@ -109,8 +109,6 @@ def ask_for_event(session):
 def ask_for_event_data(session, event=None):
     try_again = True
     while try_again:
-        event_data = dict()
-
         event_data = prompt_for_event(event)
 
         errors = Event.validate_data(event_data)
