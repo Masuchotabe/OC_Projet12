@@ -44,6 +44,7 @@ def load_data(filename):
             conn.execute(sql_query)
             conn.commit()
 
+@config_group.command()
 def create_sample_data():
     """Create example data for the project"""
 
@@ -53,7 +54,7 @@ def create_sample_data():
             user_to_create = [
                 {
                     'username': 'tmanagement',
-                    'personal_number': '01234536789',
+                    'personal_number': '0123456789',
                     'first_name': 'Thomas',
                     'last_name': 'Management',
                     'email': 'tmanagement@epicevent.com',
