@@ -3,7 +3,7 @@ from rich.prompt import Prompt
 from views import display_table
 
 
-def prompt_for_event(event=None):
+def prompt_for_event(user, event=None):
     event_data = {}
     if event:
         event_data['event_start_date'] = Prompt.ask('Event start date (YYYY-MM-DD HH:MM)', default=event.event_start_date.strftime('%Y-%m-%d %H:%M'))
@@ -12,7 +12,8 @@ def prompt_for_event(event=None):
         event_data['attendees'] = Prompt.ask('Attendees', default=str(event.attendees))
         event_data['notes'] = Prompt.ask('Notes', default=event.notes)
         event_data['contract_id'] = Prompt.ask('Contract ID', default=str(event.contract_id))
-        event_data['support_contact_username'] = Prompt.ask('Support contact username', default=event.support_contact.username if event.support_contact else None)
+        if user.has_perm('update_event_support'):
+            event_data['support_contact_username'] = Prompt.ask('Support contact username', default=event.support_contact.username if event.support_contact else None)
     else:
         event_data['event_start_date'] = Prompt.ask('Event start date (YYYY-MM-DD HH:MM)')
         event_data['event_end_date'] = Prompt.ask('Event end date (YYYY-MM-DD HH:MM)')
@@ -20,7 +21,6 @@ def prompt_for_event(event=None):
         event_data['attendees'] = Prompt.ask('Attendees')
         event_data['notes'] = Prompt.ask('Notes')
         event_data['contract_id'] = Prompt.ask('Contract ID')
-        event_data['support_contact_username'] = Prompt.ask('Support contact username')
     return event_data
 
 

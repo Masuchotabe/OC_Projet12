@@ -26,7 +26,7 @@ event_cli = click.Group()
 @permission_required('create_event')
 def create_event(user, session):
     """Création d'un événement"""
-    event_data = ask_for_event_data(session)
+    event_data = ask_for_event_data(session, user)
 
     contract = event_data.get('contract')
 
@@ -84,7 +84,7 @@ def update_event(user, session):
     target_event = ask_for_event(session)
     if user.has_perm('update_only_my_events') and target_event.support_contact != user:
         return show_error("You don't have permission to edit this event")
-    event_data = ask_for_event_data(session, target_event)
+    event_data = ask_for_event_data(session, user, target_event)
     if event_data:
         target_event.update(session, event_data)
 
@@ -106,10 +106,10 @@ def ask_for_event(session):
                 show_error('Wrong ID, try again.')
     return target_event
 
-def ask_for_event_data(session, event=None):
+def ask_for_event_data(session, user, event=None):
     try_again = True
     while try_again:
-        event_data = prompt_for_event(event)
+        event_data = prompt_for_event(user, event)
 
         errors = Event.validate_data(event_data)
 

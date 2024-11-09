@@ -40,6 +40,7 @@ class Team(Base):
                 'create_contract',
                 'update_contract',
                 'update_event',
+                'update_event_support',
             ]
         if self.name == "Sales team":
             return base_perms + [
