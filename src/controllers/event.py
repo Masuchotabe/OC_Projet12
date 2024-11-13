@@ -54,12 +54,14 @@ def get_event(user, session):
 
 @event_cli.command()
 @click.argument('token')
+@click.option('--filter-empty-support', default=False, is_flag=True)
+@click.option('--my-events', default=False, is_flag=True)
 @manage_session
 @login_required
 @permission_required('list_events')
-def get_events(user, session):
+def get_events(user, session, filter_empty_support, my_events):
     """Retourne tous les événements"""
-    events = Event.get_events(session)
+    events = Event.get_events(session, user, filter_empty_support, my_events)
     display_events(events)
 
 @event_cli.command()

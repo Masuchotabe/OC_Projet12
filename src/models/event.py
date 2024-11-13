@@ -70,7 +70,7 @@ class Event(Base):
         return errors
 
     @classmethod
-    def get_events(cls, session):
+    def get_events(cls, session, user=None, filter_empty, user_only):
         """Retourne une liste de tous les événements"""
         return session.scalars(select(cls)).all()
 
