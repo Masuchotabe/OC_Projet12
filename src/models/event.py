@@ -70,9 +70,14 @@ class Event(Base):
         return errors
 
     @classmethod
-    def get_events(cls, session, user=None, filter_empty, user_only):
+    def get_events(cls, session, user=None, filter_empty=False, user_only=False):
         """Retourne une liste de tous les événements"""
-        return session.scalars(select(cls)).all()
+        query = select(cls)
+        if user and user_only:
+            query = query.filter(cls.support_contact == user)
+        elif filter_empty:
+            query = query.filter(cls.support_contact_id == None)
+        return session.scalars(query).all()
 
     @classmethod
     def get_event(cls, session, id):
