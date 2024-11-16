@@ -1,5 +1,6 @@
 from functools import wraps
 
+from sentry_sdk import set_user
 from sqlalchemy.orm import Session
 
 from database import engine
@@ -28,6 +29,7 @@ def login_required(func):
         user = get_user_from_token(token, session)
         if user:
             kwargs["user"] = user
+            set_user({"username": user.username})
             return func(*args, **kwargs)
         else:
             return "You need to login to access this feature"

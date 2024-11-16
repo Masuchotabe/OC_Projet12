@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 from passlib.hash import argon2
+from sentry_sdk import capture_message
 from sqlalchemy import ForeignKey, String, select
 from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, validates
@@ -104,6 +105,7 @@ class User(Base):
 
         session.add(user)
         session.commit()
+        capture_message(f"User created : {user.username}")
         return user
 
     def update(self, session, user_data):
@@ -116,6 +118,7 @@ class User(Base):
         if user_data.get('password'):
             user_data['password'] = argon2.hash(user_data['password'])
         self._update_data(user_data)
+        capture_message(f"User updated : {self.username}")
         session.commit()
 
 
