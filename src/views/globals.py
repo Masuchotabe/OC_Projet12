@@ -9,7 +9,7 @@ def display_table(headers, rows, title):
     for header in headers:
         table.add_column(header)
     for row in rows:
-        table.add_row(*[str(e) if e else e for e in row])
+        table.add_row(*[str(e) if e is not None else e for e in row])
     console.print(table)
 
 
