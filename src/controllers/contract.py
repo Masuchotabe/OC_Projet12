@@ -41,12 +41,14 @@ def get_contract(user, session):
 
 @contract_cli.command()
 @click.argument('token')
+@click.option('--not-signed', default=False, is_flag=True)
+@click.option('--unpaid', default=False, is_flag=True)
 @manage_session
 @login_required
 @permission_required('list_contracts')
-def get_contracts(user, session):
+def get_contracts(user, session, not_signed, unpaid):
     """Retourne tous les contrats"""
-    contracts = Contract.get_contracts(session)
+    contracts = Contract.get_contracts(session, not_signed, unpaid)
     display_contracts(contracts)
 
 @contract_cli.command()

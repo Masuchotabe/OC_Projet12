@@ -65,9 +65,14 @@ class Contract(Base):
         return errors
 
     @classmethod
-    def get_contracts(cls, session):
+    def get_contracts(cls, session, not_signed, unpaid_contracts):
         """Retourne une liste de tous les contrats"""
-        return session.scalars(select(cls)).all()
+        query = select(cls)
+        if not_signed:
+            query = query.where(cls.status == ContractStatus.CREATED)
+        elif unpaid_contracts:
+            query = query.where(cls.remaining_balance > 0)
+        return session.scalars(query).all()
 
     @classmethod
     def get_contract(cls, session, id):
