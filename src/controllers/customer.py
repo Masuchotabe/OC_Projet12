@@ -71,17 +71,17 @@ def update_customer(user, session):
         target_customer.update(session, customer_data)
 
 def ask_for_customer(session):
-    is_valid = False
+    try_again = True
     target_customer = None
-    while not is_valid:
-        target_email, stop = ask_for('Enter the email of the customer')
-        if stop:
-            break
-        target_customer = Customer.get_customer(session, email=target_email)
-        if target_customer:
-            is_valid = True
-        else:
-            show_error('Wrong username, try again.')
+    while try_again:
+        target_email = ask_for('Enter the email of the customer')
+        if target_email:
+            target_customer = Customer.get_customer(session, email=target_email)
+            if target_customer:
+                break
+            else:
+                show_error('Wrong username.')
+        try_again = ask_confirm('Try again ?')
     return target_customer
 
 def ask_for_customer_data(session, customer=None):

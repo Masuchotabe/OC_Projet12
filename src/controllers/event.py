@@ -91,21 +91,17 @@ def update_event(user, session):
         target_event.update(session, event_data)
 
 def ask_for_event(session):
-    is_valid = False
+    try_again = True
     target_event = None
-    while not is_valid:
-        try:
-            target_id = int(ask_for('Enter the ID of the event')[0])
-        except ValueError:
-            show_error('ID must be an integer. Please try again.')
-            continue
-
+    while try_again:
+        target_id = ask_for('Enter the ID of the event', output_type=int)
         if target_id:
             target_event = Event.get_event(session, id=target_id)
             if target_event:
-                is_valid = True
+                break
             else:
                 show_error('Wrong ID, try again.')
+            try_again = ask_confirm('Try again ?')
     return target_event
 
 def ask_for_event_data(session, user, event=None):

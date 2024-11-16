@@ -131,18 +131,17 @@ def create_admin(session):
         User.create(session, user_data)
 
 def ask_for_user(session):
-    is_valid = False
+    try_again = True
     target_user = None
-    while not is_valid:
-        target_username, stop = ask_for('Enter the username of the user')
-        if stop:
-            break
-        target_user = User.get_user(session, username=target_username)
-        if target_user:
-            is_valid = True
-        else:
-            show_error('Wrong username, try again.')
-
+    while try_again:
+        target_username = ask_for('Enter the username of the user')
+        if target_username:
+            target_user = User.get_user(session, username=target_username)
+            if target_user:
+                break
+            else:
+                show_error('Wrong username.')
+        try_again = ask_confirm('Try again ?')
     return target_user
 
 def ask_for_user_data(session, user=None, teams_name=None):
