@@ -13,6 +13,7 @@ pyjwt = "*"
 python-dotenv = "*"
 click = "*"
 rich = "*"
+sentry-sdk = "*"
 
 [dev-packages]
 
