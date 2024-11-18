@@ -1,4 +1,6 @@
+import logging
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 import sentry_sdk
@@ -12,9 +14,22 @@ DATABASE_NAME = os.getenv("DATABASE_NAME")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-import sentry_sdk
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+# create log directory if doesn't exist
+
+LOGS_DIR = PROJECT_DIR / 'logs'
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+logger = logging.getLogger('error')
+file_handler = logging.FileHandler(LOGS_DIR / 'error.log')
+file_handler.setLevel(logging.WARNING)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(file_handler)
+
+# logging.basicConfig(level=logging.WARNING)
 
 sentry_sdk.init(
     dsn="https://3aab9dd5d84c6762712bd92c4d3afc17@o4508309259747328.ingest.de.sentry.io/4508309281964112",
     traces_sample_rate=1.0,
+    # shutdown_timeout=0,
 )
