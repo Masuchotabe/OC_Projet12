@@ -1,4 +1,5 @@
 import click
+import sentry_sdk
 
 from controllers.auth import auth_cli, user_login
 from controllers.contract import contract_cli
@@ -12,5 +13,6 @@ global_cli = click.CommandCollection(name='test', sources=[auth_cli, user_cli, c
 
 if __name__ == '__main__':
     global_cli()
+    sentry_sdk.flush()
 
 

@@ -1,8 +1,6 @@
 import click
 from passlib.hash import argon2
-from sqlalchemy.orm import Session
 
-from database import engine
 from decorators import manage_session
 from models import User
 from utils import create_token

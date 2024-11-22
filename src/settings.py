@@ -20,13 +20,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 LOGS_DIR = PROJECT_DIR / 'logs'
 os.makedirs(LOGS_DIR, exist_ok=True)
 
-logger = logging.getLogger('error')
-file_handler = logging.FileHandler(LOGS_DIR / 'error.log')
-file_handler.setLevel(logging.WARNING)
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(file_handler)
 
-# logging.basicConfig(level=logging.WARNING)
 
 sentry_sdk.init(
     dsn="https://3aab9dd5d84c6762712bd92c4d3afc17@o4508309259747328.ingest.de.sentry.io/4508309281964112",
