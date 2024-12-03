@@ -14,13 +14,17 @@ customer_cli = click.Group()
 @login_required
 @permission_required('create_customer')
 def create_customer(user, session):
-    """Création d'un client"""
+    """
+    Create a new customer.
+    Args:
+        user(User): connected user from token
+        session(Session): SQLAlchemy session
+    """
     customer_data = ask_for_customer_data(session)
     customer_data['sales_contact'] = user
 
     if customer_data:
         Customer.create(session, customer_data)
-
 
 @customer_cli.command()
 @click.argument('token')
@@ -28,9 +32,13 @@ def create_customer(user, session):
 @login_required
 @permission_required('get_customer')
 def get_customer(user, session):
-    """Retourne un client à partir de son ID"""
+    """
+    Retrieve and display a customer by email.
+    Args:
+        user(User): connected user from token
+        session(Session): SQLAlchemy session
+    """
     target_customer = ask_for_customer(session)
-
     if target_customer:
         display_customers([target_customer])
 
@@ -40,7 +48,12 @@ def get_customer(user, session):
 @login_required
 @permission_required('list_customers')
 def get_customers(user, session):
-    """Retourne tous les clients"""
+    """
+    Retrieve and display a list of customers.
+    Args:
+        user(User): connected user from token
+        session(Session): SQLAlchemy session
+    """
     customers = Customer.get_customers(session)
     display_customers(customers)
 
@@ -50,9 +63,13 @@ def get_customers(user, session):
 @login_required
 @permission_required('delete_customers')
 def delete_customer(user, session):
-    """Supprime un client"""
+    """
+    Delete a customer by email.
+    Args:
+        user(User): connected user from token
+        session(Session): SQLAlchemy session
+    """
     target_customer = ask_for_customer(session)
-
     if target_customer:
         target_customer.delete()
 
@@ -62,7 +79,12 @@ def delete_customer(user, session):
 @login_required
 @permission_required('update_customer')
 def update_customer(user, session):
-    """Met à jour un client"""
+    """
+    Update an existing customer's information.
+    Args:
+        user(User): connected user from token
+        session(Session): SQLAlchemy session
+    """
     target_customer = ask_for_customer(session)
     if user.has_perm('update_only_my_customers') and target_customer.sales_contact != user:
         return show_error("You don't have permission to edit this customer")
@@ -71,6 +93,12 @@ def update_customer(user, session):
         target_customer.update(session, customer_data)
 
 def ask_for_customer(session):
+    """
+    Prompt user for a customer's email and retrieve the customer.
+    Args:
+        session(Session): SQLAlchemy session
+    Returns(Customer or None): Customer instance or None if not found
+    """
     try_again = True
     target_customer = None
     while try_again:
@@ -80,18 +108,25 @@ def ask_for_customer(session):
             if target_customer:
                 break
             else:
-                show_error('Wrong username.')
-        try_again = ask_confirm('Try again ?')
+                show_error('Wrong email.')
+        try_again = ask_confirm('Try again?')
     return target_customer
 
 def ask_for_customer_data(session, customer=None):
+    """
+    Prompt user for customer data and validate it.
+    Args:
+        session(Session): SQLAlchemy session
+        customer(Customer, optional): existing customer instance
+    Returns(dict): validated customer data
+    """
     try_again = True
     customer_data = dict()
     while try_again:
-
         customer_data = prompt_for_customer(customer)
         errors = Customer.validate_data(customer_data)
-        if customer_data.get('sales_contact_username') and not User.get_user(session,customer_data['sales_contact_username']):
+
+        if customer_data.get('sales_contact_username') and not User.get_user(session, customer_data['sales_contact_username']):
             errors.append('Wrong username for sales contact.')
         elif customer_data.get('sales_contact_username'):
             customer_data['sales_contact'] = User.get_user(session, customer_data['sales_contact_username'])
@@ -100,5 +135,5 @@ def ask_for_customer_data(session, customer=None):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_confirm('Try again?')
     return customer_data

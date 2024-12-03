@@ -21,7 +21,12 @@ contract_cli = click.Group()
 @login_required
 @permission_required('create_contract')
 def create_contract(user, session):
-    """Création d'un contrat"""
+    """
+    Create contract.
+    Args:
+        user(User): connected user from token
+        session(Session): Sqlalchemy session
+    """
     contract_data = ask_for_contract_data(session)
 
     if contract_data:
@@ -33,7 +38,12 @@ def create_contract(user, session):
 @login_required
 @permission_required('get_contract')
 def get_contract(user, session):
-    """Retourne un contrat à partir de son ID"""
+    """
+    Display a contract selected by ID.
+    Args:
+        user(User): connected user from token
+        session(Session): Sqlalchemy session
+    """
     target_contract = ask_for_contract(session)
 
     if target_contract:
@@ -47,7 +57,14 @@ def get_contract(user, session):
 @login_required
 @permission_required('list_contracts')
 def get_contracts(user, session, not_signed, unpaid):
-    """Retourne tous les contrats"""
+    """
+    Display list of contract.
+    Args:
+        user(User): connected user from token
+        session(Session): Sqlalchemy session
+        not_signed(bool): display contract not signed
+        unpaid(bool): Display not fully paid contract
+    """
     contracts = Contract.get_contracts(session, not_signed, unpaid)
     display_contracts(contracts)
 
@@ -57,7 +74,12 @@ def get_contracts(user, session, not_signed, unpaid):
 @login_required
 @permission_required('delete_contract')
 def delete_contract(user, session):
-    """Supprime un contrat"""
+    """
+    Delete contract.
+    Args:
+        user(User): connected user from token
+        session(Session): Sqlalchemy session
+    """
     target_contract = ask_for_contract(session)
 
     if target_contract:
@@ -69,21 +91,32 @@ def delete_contract(user, session):
 @login_required
 @permission_required('update_contract')
 def update_contract(user, session):
-    """Met à jour un contrat"""
-
+    """
+    Update contract.
+    Args:
+        user(User): connected user from token
+        session(Session): Sqlalchemy session
+    """
 
     target_contract = ask_for_contract(session)
     if not target_contract:
         return
 
     if user.has_perm('update_only_my_contracts') and target_contract.customer.sales_contact != user:
-        return show_error("You don't have permission to edit this contract")
+        show_error("You don't have permission to edit this contract")
+        return
 
     contract_data = ask_for_contract_data(session, target_contract)
     if contract_data:
         target_contract.update(session, contract_data)
 
 def ask_for_contract(session):
+    """
+    Ask for contract by ID.
+    Args:
+        session(Session): Sqlalchemy session
+    Returns(Contract or None): Contract or None
+    """
     try_again = True
     target_contract = None
     while try_again:

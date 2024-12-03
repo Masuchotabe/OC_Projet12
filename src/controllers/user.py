@@ -19,10 +19,10 @@ user_cli = click.Group()
 @permission_required('create_user')
 def create_user(user, session):
     """
-    Création du user
+    Create a new user.
     Args:
-        user(User): user connecté via le token
-        session(Session): session sqlalchemy
+        user(User): Connected user from token.
+        session(Session): SQLAlchemy session.
     """
     teams_name = [team.name for team in Team.get_teams(session)]
     user_data = ask_for_user_data(session=session, teams_name=teams_name)
@@ -37,11 +37,17 @@ def create_user(user, session):
 @login_required
 @permission_required('read_user')
 def get_user(user, session):
-    """Voir le détail d'un utilisateur"""
+    """
+    Retrieve details of a specific user.
+    Args:
+        user(User): Connected user from the token.
+        session(Session): SQLAlchemy session.
+    """
     target_user = ask_for_user(session)
 
     if target_user:
         display_users([target_user])
+
 
 @user_cli.command()
 @click.argument('token')
@@ -49,10 +55,11 @@ def get_user(user, session):
 @login_required
 @permission_required('list_users')
 def get_users(user, session):
-    """Retourne tous les utilisateurs
+    """
+    Retrieve a list of all users.
     Args:
-        user(User): user connecté via la token
-        session(Session): session sqlalchemy
+        user(User): Connected user from the token.
+        session(Session): SQLAlchemy session.
     """
     users = User.get_users(session)
     display_users(users)
@@ -64,7 +71,12 @@ def get_users(user, session):
 @login_required
 @permission_required('delete_users')
 def delete_user(user, session):
-    """Supprime un utilisateur"""
+    """
+    Delete a user based on their username.
+    Args:
+        user(User): Connected user from the token.
+        session(Session): SQLAlchemy session.
+    """
     is_valid = False
     target_user = None
     while not is_valid:
@@ -80,14 +92,19 @@ def delete_user(user, session):
     if target_user:
         target_user.delete(session)
 
+
 @user_cli.command()
 @click.argument('token')
 @manage_session
 @login_required
 @permission_required('update_user')
 def update_user(user, session):
-    """Met à jour un user en fonction de l'id et des données"""
-
+    """
+    Update a user based on their ID and provided data.
+    Args:
+        user(User): Connected user from the token.
+        session(Session): SQLAlchemy session.
+    """
     target_user = ask_for_user(session)
     if not target_user:
         return
@@ -99,15 +116,13 @@ def update_user(user, session):
         target_user.update(session, user_data)
 
 
-
 @user_cli.command()
 @manage_session
 def create_admin(session):
     """
-    Création du user admin, possible uniquement si il n'y pas pas d'utilisateur
+    Create an admin user. Only allowed if the database is empty.
     Args:
-        user(User): user connecté via le token
-        session(Session): session sqlalchemy
+        session(Session): SQLAlchemy session.
     """
     if User.get_users(session):
         show_error("Initialization failed: Users already exist in the database. This feature is only available for an empty database.")
@@ -116,7 +131,6 @@ def create_admin(session):
     try_again = True
     user_data = dict()
     while try_again:
-
         user_data = prompt_for_user()
         errors = User.validate_data(user_data)
         if not errors:
@@ -127,10 +141,17 @@ def create_admin(session):
 
     if user_data:
         user_data['team'] = Team.get_team(session, "Management team")
-
         User.create(session, user_data)
 
+
 def ask_for_user(session):
+    """
+    Prompt to select a user by their username.
+    Args:
+        session(Session): SQLAlchemy session.
+    Returns:
+        User or None: The selected user or None if canceled.
+    """
     try_again = True
     target_user = None
     while try_again:
@@ -144,13 +165,22 @@ def ask_for_user(session):
         try_again = ask_confirm('Try again ?')
     return target_user
 
+
 def ask_for_user_data(session, user=None, teams_name=None):
+    """
+    Prompt for user data for creation or update.
+    Args:
+        session(Session): SQLAlchemy session.
+        user(User, optional): Existing user to update. Defaults to None.
+        teams_name(list): List of team names for selection.
+    Returns:
+        dict or None: User data dictionary or None if canceled.
+    """
     try_again = True
     user_data = dict()
     while try_again:
-
         user_data = prompt_for_user(actual_user=user, team_choice=teams_name)
-        if user and not user_data['password']: # delete password field if it's empty and it's an update
+        if user and not user_data['password']:  # Remove password field if empty during update
             user_data.pop('password')
         errors = User.validate_data(user_data)
         if user_data['team_name'] and not Team.get_team(session, user_data['team_name']):

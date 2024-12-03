@@ -13,7 +13,11 @@ auth_cli = click.Group()
 @auth_cli.command()
 @manage_session
 def user_login(session):
-    """Connexion d'un utilisateur"""
+    """
+    Authenticate a user and generate an authentication token.
+    Args:
+        session(Session): SQLAlchemy session
+    """
     username, password = login_view()
     user = session.query(User).filter_by(username=username).first()
     if user and argon2.verify(password, user.password):
