@@ -30,7 +30,13 @@ class Event(Base):
 
     @classmethod
     def validate_event_start_date(cls, value):
-        """validate event start date"""
+        """
+        Validate the event start date format.
+        Args:
+            value (str): The start date of the event in 'YYYY-MM-DD HH:MM' format.
+        Returns:
+            datetime: The validated start date as a datetime object.
+        """
         try:
             return datetime.strptime(value, '%Y-%m-%d %H:%M')
         except ValueError:
@@ -38,7 +44,13 @@ class Event(Base):
 
     @classmethod
     def validate_event_end_date(cls, value):
-        """validate event start date"""
+        """
+        Validate the event end date format.
+        Args:
+            value (str): The end date of the event in 'YYYY-MM-DD HH:MM' format.
+        Returns:
+            datetime: The validated end date as a datetime object.
+        """
         try:
             return datetime.strptime(value, '%Y-%m-%d %H:%M')
         except ValueError:
@@ -47,13 +59,13 @@ class Event(Base):
     @classmethod
     def validate_data(cls, event_data):
         """
-        Valide les données d'un événement.
+        Validate the event data.
 
         Args:
-            event_data (dict): Dictionnaire contenant les données de l'événement.
+            event_data (dict): A dictionary containing the event data.
 
         Returns:
-            list: Une liste d'erreurs de validation.
+            List[str]: A list of validation error messages, empty if no errors.
         """
         errors = []
 
@@ -71,7 +83,16 @@ class Event(Base):
 
     @classmethod
     def get_events(cls, session, user=None, filter_empty=False, user_only=False):
-        """Retourne une liste de tous les événements"""
+        """
+        Retrieve a list of events.
+        Args:
+            session (Session): SQLAlchemy session.
+            user (User, optional): The user to filter events by. Defaults to None.
+            filter_empty (bool, optional): Flag to filter events without support contact. Defaults to False.
+            user_only (bool, optional): Flag to filter events assigned to the user. Defaults to False.
+        Returns:
+            List[Event]: A list of events that match the filtering criteria.
+        """
         query = select(cls)
         if user and user_only:
             query = query.filter(cls.support_contact == user)
@@ -81,12 +102,26 @@ class Event(Base):
 
     @classmethod
     def get_event(cls, session, id):
-        """Retourne un événement à partir de son ID"""
+        """
+        Retrieve an event by its ID.
+        Args:
+            session (Session): SQLAlchemy session.
+            id (int): The ID of the event to retrieve.
+        Returns:
+            Event or None: The event with the given ID, or None if not found.
+        """
         return session.scalar(select(cls).where(cls.id == id))
 
     @classmethod
     def create(cls, session, event_data):
-        """Crée un événement et le retourne"""
+        """
+        Create a new event and return it.
+        Args:
+            session (Session): SQLAlchemy session.
+            event_data (dict): A dictionary containing the event data.
+        Returns:
+            Event: The newly created event.
+        """
         event = cls()
         event._update_data(event_data)
 
@@ -96,22 +131,31 @@ class Event(Base):
 
     def update(self, session, event_data):
         """
-        Met à jour un évènement
-        Args :
-            session (Session) : session
-            event_data (dict) : dict of event datas
+        Update an existing event.
+        Args:
+            session (Session): SQLAlchemy session.
+            event_data (dict): A dictionary containing the updated event data.
         """
         self._update_data(event_data)
         session.commit()
 
     def _update_data(self, event_data):
-        """Met à jour les données du client"""
+        """
+        Internal method to update the event data.
+
+        Args:
+            event_data (dict): A dictionary containing the event data to update.
+        """
         for key, value in event_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
     def delete(self, session):
-        """Supprime l'événement"""
+        """
+        Delete the event from the database.
+        Args:
+            session (Session): SQLAlchemy session.
+        """
         session.delete(self)
         session.commit()
 

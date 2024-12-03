@@ -36,28 +36,52 @@ class User(Base):
 
     @classmethod
     def validate_username(cls, username):
-        """Validate username"""
+        """
+        Validate the username format.
+        Args:
+            username (str): The username to validate.
+        Returns:
+            str: The validated username.
+        """
         if len(username) < 5 or not re.match(r"^[a-zA-Z][a-zA-Z0-9]+$", username):
             raise ValueError("""The username must contain at least 5 characters and consist only of letters and number, starting with a letter.""")
         return username
 
     @classmethod
     def validate_email(cls, email):
-        """Validate email"""
+        """
+        Validate the email format.
+        Args:
+            email (str): The email address to validate.
+        Returns:
+            str: The validated email.
+        """
         if email and  not re.match(r"^((?!\.)[\w\-_.+]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$", email):
             raise ValueError("""The email is not valid.""")
         return email
 
     @classmethod
     def validate_personal_number(cls, personal_number):
-        """Validate email"""
+        """
+        Validate the employee personal number (ID).
+        Args:
+            personal_number (str): The employee number to validate.
+        Returns:
+            str: The validated personal number.
+        """
         if len(personal_number) != 10 or not re.match(r"^[0-9]+$", personal_number):
             raise ValueError("""Employee ID must be 10 numbers""")
         return personal_number
 
     @classmethod
     def validate_password(cls, password):
-        """Validate email"""
+        """
+        Validate the password format.
+        Args:
+            password (str): The password to validate.
+        Returns:
+            str: The validated password.
+        """
         if not re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$", password):
             raise ValueError("""Password must contain at least 8 characters, including lowercase, uppercase, and a number.""")
         return password
@@ -65,9 +89,11 @@ class User(Base):
     @classmethod
     def validate_data(cls, user_data):
         """
-        Validate some user data.
-        :param user_data(dict): dict of user datas
-        :return: list of errors
+        Validate the user data fields.
+        Args:
+            user_data (dict): A dictionary containing user data to validate.
+        Returns:
+            List[str]: A list of validation error messages. Empty if no errors.
         """
         errors = []
         for field_name, value in user_data.items():
@@ -80,24 +106,36 @@ class User(Base):
 
     @classmethod
     def get_users(cls, session):
-        """Retourne une liste des équipes"""
+        """
+        Retrieve a list of all users.
+        Args:
+            session (Session): SQLAlchemy session.
+        Returns:
+            List[User]: A list of all users.
+        """
         return session.scalars(select(cls)).all()
 
     @classmethod
     def get_user(cls, session, username):
-        """Retourne une équipe à partir de son username"""
+        """
+        Retrieve a user by their username.
+        Args:
+            session (Session): SQLAlchemy session.
+            username (str): The username of the user to retrieve.
+        Returns:
+            Optional[User]: The user with the given username, or None if not found.
+        """
         return session.scalar(select(cls).where(cls.username == username))
 
     @classmethod
     def create(cls, session, user_data):
         """
-        Crée un user et le retourne
+        Create a new user and return it.
         Args:
-            session(sqlalchemy.orm.Session): session
-            user_data(dict): dict of user datas
-
+            session (Session): SQLAlchemy session.
+            user_data (dict): A dictionary containing user data.
         Returns:
-
+            User: The newly created user.
         """
         user_data['password'] = argon2.hash(user_data['password'])
         user = cls()
@@ -110,10 +148,10 @@ class User(Base):
 
     def update(self, session, user_data):
         """
-        Met à jour un utilisateur
+        Update an existing user.
         Args:
-            session(session): session de db
-            user_data: Données utilisateur
+            session (Session): SQLAlchemy session.
+            user_data (dict): A dictionary containing updated user data.
         """
         if user_data.get('password'):
             user_data['password'] = argon2.hash(user_data['password'])
@@ -123,17 +161,31 @@ class User(Base):
 
 
     def _update_data(self, user_data):
-        """Met à jour les données utilisateur"""
+        """
+        Internal method to update the user data fields.
+        Args:
+            user_data (dict): A dictionary containing user data to update.
+        """
         for key, value in user_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
 
     def delete(self, session):
-        """Supprimer l'utilisateur"""
+        """
+        Delete the user from the database.
+        Args:
+            session (Session): SQLAlchemy session.
+        """
         session.delete(self)
         session.commit()
 
     def has_perm(self, permission: str) -> bool:
-        """retourne True si permission fait partie des permissions de son équipe"""
+        """
+        Check if the user has a specific permission.
+        Args:
+            permission (str): The permission to check.
+        Returns:
+            bool: True if the user has the permission, False otherwise.
+        """
         return permission in self.team.permissions()

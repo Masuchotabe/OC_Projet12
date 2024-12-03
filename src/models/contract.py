@@ -15,6 +15,7 @@ from .user import User
 
 
 class ContractStatus(enum.Enum):
+    """Enum representing possible statuses of a contract."""
     CREATED = 'Created'
     SIGNED = 'Signed'
     FINISHED = 'Finished'
@@ -33,7 +34,13 @@ class Contract(Base):
 
     @classmethod
     def validate_status(cls, value):
-        """Assert status is in the choice"""
+        """
+        Validate the status value.
+        Args:
+            value(str): The status to validate.
+        Returns:
+            str: Validated status value.
+        """
         # if value not in ContractStatus.
         if value not in [status.value for status in ContractStatus]:
             raise ValueError('Status not in choice')
@@ -42,13 +49,13 @@ class Contract(Base):
     @classmethod
     def validate_data(cls, contract_data):
         """
-        Valide les données d'un contrat
+        Validate contract data.
 
         Args:
-            contract_data (dict): Dictionnaire contenant les données du contrat
+            contract_data(dict): Dictionary containing contract data.
 
         Returns:
-            list: Une liste d'erreurs de validation, vide si les données sont valides
+            list: A list of validation errors, empty if the data is valid.
         """
         errors = []
 
@@ -66,7 +73,15 @@ class Contract(Base):
 
     @classmethod
     def get_contracts(cls, session, not_signed, unpaid_contracts):
-        """Retourne une liste de tous les contrats"""
+        """
+        Retrieve a list of contracts based on filters.
+        Args:
+            session(Session): SQLAlchemy session.
+            not_signed(bool): If True, filter only contracts with status 'Created'.
+            unpaid_contracts(bool): If True, filter contracts with remaining balance greater than zero.
+        Returns:
+            List[Contract]: List of filtered contracts.
+        """
         query = select(cls)
         if not_signed:
             query = query.where(cls.status == ContractStatus.CREATED)
@@ -76,12 +91,26 @@ class Contract(Base):
 
     @classmethod
     def get_contract(cls, session, id):
-        """Retourne un contrat à partir de son ID"""
+        """
+        Retrieve a specific contract by its ID.
+        Args:
+            session(Session): SQLAlchemy session.
+            id(int): ID of the contract.
+        Returns:
+            Optional[Contract]: The contract if found, otherwise None.
+        """
         return session.scalar(select(cls).where(cls.id == id))
 
     @classmethod
     def create(cls, session, contract_data):
-        """Crée un contrat et le retourne"""
+        """
+        Create and return a new contract.
+        Args:
+            session(Session): SQLAlchemy session.
+            contract_data(dict): Dictionary containing contract data.
+        Returns:
+            Contract: The newly created contract.
+        """
         contract = cls()
         contract._update_data(contract_data)
 
@@ -90,17 +119,30 @@ class Contract(Base):
         return contract
 
     def update(self, session, contract_data):
-        """Met à jour un contrat"""
+        """
+        Update an existing contract with new data.
+        Args:
+            session(Session): SQLAlchemy session.
+            contract_data(dict): Dictionary containing updated contract data.
+        """
         self._update_data(contract_data)
         session.commit()
 
     def _update_data(self, customer_data):
-        """Met à jour les données du client"""
+        """
+        Internal method to update contract data.
+        Args:
+            contract_data(dict): Dictionary containing data to update.
+        """
         for key, value in customer_data.items():
             if hasattr(self, key):
                 setattr(self, key, value)
 
     def delete(self, session):
-        """Supprime le contrat"""
+        """
+        Delete the current contract.
+        Args:
+            session(Session): SQLAlchemy session.
+        """
         session.delete(self)
         session.commit()

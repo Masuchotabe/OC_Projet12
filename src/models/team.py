@@ -21,7 +21,11 @@ class Team(Base):
         return self.name
 
     def permissions(self):
-        """retourne les permissions de la team"""
+        """
+        Returns the permissions associated with the team.
+        Returns:
+            List[str]: A list of permissions granted to the team.
+        """
         base_perms = [
             'list_contracts',
             'read_contract',
@@ -60,12 +64,25 @@ class Team(Base):
 
     @classmethod
     def get_teams(cls, session):
-        """Retourne une liste des équipes"""
+        """
+        Returns all available teams.
+        Args:
+            session(Session): Active SQLAlchemy session.
+        Returns:
+            List[Team]: A list of all teams.
+        """
         return session.scalars(select(cls)).all()
 
     @classmethod
     def get_team(cls, session, team_name):
-        """Retourne une équipe à partir de son nom"""
+        """
+        Returns a specific team by its name.
+        Args:
+            session(Session): Active SQLAlchemy session.
+            team_name(str): Name of the team to retrieve.
+        Returns:
+            Optional[Team]: The team object if found, otherwise None.
+        """
         return session.scalar(select(cls).where(cls.name==team_name))
 
 @event.listens_for(Team.__table__, "after_create")
