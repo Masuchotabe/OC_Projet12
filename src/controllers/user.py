@@ -1,9 +1,7 @@
 import click
-from click import pass_context
-from passlib.hash import argon2
-from sqlalchemy import select, Select
 
-from views import prompt_for_user, display_users, ask_for, show_error, ask_confirm
+
+from views import prompt_for_user, display_users, ask_for, show_error
 from models import User, Team
 from sqlalchemy.orm import Session
 
@@ -137,7 +135,7 @@ def create_admin(session):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_for('Try again ?', output_type=bool)
 
     if user_data:
         user_data['team'] = Team.get_team(session, "Management team")
@@ -162,7 +160,7 @@ def ask_for_user(session):
                 break
             else:
                 show_error('Wrong username.')
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return target_user
 
 
@@ -191,6 +189,6 @@ def ask_for_user_data(session, user=None, teams_name=None):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_for('Try again ?', output_type=bool)
 
     return user_data if try_again else None

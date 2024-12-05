@@ -5,8 +5,11 @@ from .globals import display_table
 
 def prompt_for_customer(actual_customer=None):
     """
+    Prompt the user to enter or update customer data.
     Args:
-        actual_customer(Customer):
+        actual_customer (Customer, optional): An existing customer to edit. If None, a new customer will be created.
+    Returns:
+        dict: A dictionary containing the customer data entered by the user.
     """
     customer_data = {}
     if actual_customer:
@@ -26,6 +29,11 @@ def prompt_for_customer(actual_customer=None):
 
 
 def display_customers(customers):
+    """
+    Display a list of customers in a tabular format.
+    Args:
+        customers (list): A list of customer objects to display.
+    """
     headers = ['Id', 'Name', 'Email', 'Phone', 'Company', 'Sales contact']
     title = "Customers" if len(customers) > 1 else "Customer"
     rows = []

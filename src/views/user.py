@@ -4,6 +4,14 @@ from .globals import display_table
 
 
 def prompt_for_user(actual_user=None, team_choice=None):
+    """
+    Prompt the user to input or update user details.
+    Args:
+        actual_user (User, optional): An existing user to update. If None, a new user is created.
+        team_choice (list, optional): A list of valid team names for the user to choose from.
+    Returns:
+        dict: A dictionary containing user details entered by the user.
+    """
     user_data = {}
     if actual_user:
         user_data['username'] = Prompt.ask('Username', default=actual_user.username)
@@ -27,6 +35,11 @@ def prompt_for_user(actual_user=None, team_choice=None):
     return user_data
 
 def display_users(users):
+    """
+    Display a list of users in a tabular format.
+    Args:
+        users (list): A list of user objects to display.
+    """
     headers = ['Id', 'Employee ID', 'Username', 'Email', 'First name', 'Last name', 'Phone', 'Team']
     title = "Users" if len(users) >1 else "User"
     rows = []

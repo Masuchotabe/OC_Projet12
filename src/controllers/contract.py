@@ -3,14 +3,12 @@ from datetime import datetime
 import click
 from passlib.hash import argon2
 
-from controllers.customer import ask_for_customer
 from models import Contract, Customer
 from sqlalchemy.orm import Session
 
-from database import engine
 from decorators import login_required, manage_session, permission_required
 from models.contract import ContractStatus
-from views import show_error, ask_confirm, ask_for
+from views import show_error, ask_for
 from views.contract import display_contracts, prompt_for_contract
 
 contract_cli = click.Group()
@@ -128,7 +126,7 @@ def ask_for_contract(session):
                 break
             else:
                 show_error('Wrong ID.')
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return target_contract
 
 def ask_for_contract_data(session, contract=None):
@@ -149,5 +147,5 @@ def ask_for_contract_data(session, contract=None):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again ?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return contract_data

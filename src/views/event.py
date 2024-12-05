@@ -4,6 +4,14 @@ from views import display_table
 
 
 def prompt_for_event(user, event=None):
+    """
+    Prompt the user to enter or update event data.
+    Args:
+        user (User): The user making the request, used to check permissions.
+        event (Event, optional): An existing event to edit. If None, a new event will be created.
+    Returns:
+        dict: A dictionary containing the event data entered by the user.
+    """
     event_data = {}
     if event:
         event_data['event_start_date'] = Prompt.ask('Event start date (YYYY-MM-DD HH:MM)', default=event.event_start_date.strftime('%Y-%m-%d %H:%M'))
@@ -25,6 +33,11 @@ def prompt_for_event(user, event=None):
 
 
 def display_events(events):
+    """
+    Display a list of events in a tabular format.
+    Args:
+        events (list): A list of event objects to display.
+    """
     headers = ['ID', 'Start Date', 'End Date', 'Location', 'Attendees', 'Notes', 'Contract ID', 'Customer', 'Support Contact']
     title = "Events" if len(events) > 1 else "Event"
     rows = []

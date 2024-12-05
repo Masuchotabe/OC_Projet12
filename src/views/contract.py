@@ -4,6 +4,14 @@ from views import display_table
 
 
 def prompt_for_contract(contract=None, status_choices=None):
+    """
+    Prompt the user to enter or update contract data.
+    Args:
+        contract (Contract, optional): An existing contract to edit. If None, a new contract will be created.
+        status_choices (list, optional): A list of valid contract statuses to choose from.
+    Returns:
+        dict: A dictionary containing the contract data entered by the user.
+    """
     contract_data = {}
     if contract:
         contract_data['total_balance'] = Prompt.ask('Total balance', default=str(contract.total_balance))
@@ -18,6 +26,11 @@ def prompt_for_contract(contract=None, status_choices=None):
     return contract_data
 
 def display_contracts(contracts):
+    """
+    Display a list of contracts in a tabular format.
+    Args:
+        contracts (list): A list of contract objects to display.
+    """
     headers = ['ID', 'Total Balance', 'Remaining Balance', 'Status', 'Customer Email']
     title = "Contracts" if len(contracts) > 1 else "Contract"
     rows = []

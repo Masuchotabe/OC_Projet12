@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from decorators import login_required, manage_session, permission_required
 from models.contract import ContractStatus
-from views import show_error, ask_for, ask_confirm
+from views import show_error, ask_for
 from views.event import prompt_for_event, display_events
 
 event_cli = click.Group()
@@ -120,7 +120,7 @@ def ask_for_event(session):
                 break
             else:
                 show_error('Wrong ID.')
-        try_again = ask_confirm('Try again?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return target_event
 
 def ask_for_event_data(session, user, event=None):
@@ -153,5 +153,5 @@ def ask_for_event_data(session, user, event=None):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return event_data

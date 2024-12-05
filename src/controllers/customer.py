@@ -3,7 +3,7 @@ import click
 from models import Customer, User
 
 from decorators import login_required, manage_session, permission_required
-from views import show_error, ask_confirm, ask_for
+from views import show_error, ask_for
 from views.customer import prompt_for_customer, display_customers
 
 customer_cli = click.Group()
@@ -109,7 +109,7 @@ def ask_for_customer(session):
                 break
             else:
                 show_error('Wrong email.')
-        try_again = ask_confirm('Try again?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return target_customer
 
 def ask_for_customer_data(session, customer=None):
@@ -135,5 +135,5 @@ def ask_for_customer_data(session, customer=None):
             break
         for error in errors:
             show_error(error)
-        try_again = ask_confirm('Try again?')
+        try_again = ask_for('Try again ?', output_type=bool)
     return customer_data
