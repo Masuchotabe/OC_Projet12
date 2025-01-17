@@ -1,7 +1,8 @@
 import click
 from passlib.hash import argon2
 
-from decorators import manage_session
+from database import get_session
+# from decorators import manage_session
 from models import User
 from utils import create_token
 from views import show_error
@@ -11,13 +12,15 @@ from views.auth import login_view, display_token
 auth_cli = click.Group()
 
 @auth_cli.command()
-@manage_session
-def user_login(session):
+# @manage_session
+def user_login():
     """
     Authenticate a user and generate an authentication token.
     Args:
         session(Session): SQLAlchemy session
     """
+    session = get_session()
+    print(f"user_login session: {session.get_bind().url}")
     username, password = login_view()
     user = session.query(User).filter_by(username=username).first()
     if user and argon2.verify(password, user.password):

@@ -1,7 +1,7 @@
 import click
 import sentry_sdk
 
-from controllers.auth import auth_cli, user_login
+from controllers.auth import auth_cli
 from controllers.contract import contract_cli
 from controllers.customer import customer_cli
 from controllers.event import event_cli

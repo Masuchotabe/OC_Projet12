@@ -5,7 +5,6 @@ from views import prompt_for_user, display_users, ask_for, show_error
 from models import User, Team
 from sqlalchemy.orm import Session
 
-from database import engine
 from decorators import login_required, permission_required, manage_session
 
 user_cli = click.Group()

@@ -4,6 +4,7 @@ from passlib.hash import argon2
 from sqlalchemy import select
 
 from controllers import create_user
+from main import global_cli
 from models import User
 from utils import get_user_from_token
 
@@ -22,6 +23,17 @@ def test_user_login(session, user, token):
     print(token_user)
     print(user)
     assert token_user.id == user.id
+
+
+def test_user_login_command(engine, session, user, monkeypatch):
+
+    runner = CliRunner()
+    input_values = iter(['test_admin', 'test_password'])
+    monkeypatch.setattr('rich.prompt.Prompt.ask', lambda *args,**kwargs: next(input_values))
+    monkeypatch.setattr('database.get_engine', lambda *args,**kwargs: engine)
+
+    result = runner.invoke(global_cli, ['user-login'])
+    assert result.exit_code == 0
 
 def test_create_user(session, user_valid_data):
     """Tete user creation"""

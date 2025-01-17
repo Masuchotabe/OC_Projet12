@@ -3,7 +3,7 @@ from datetime import datetime
 
 import click
 from sqlalchemy import create_engine, inspect, text, insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from models import Base, User, Contract, Customer, Event
 from models.contract import ContractStatus
@@ -11,7 +11,13 @@ from settings import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_H
 
 DATABASE_URL = f'mysql+mysqldb://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'
 
-engine = create_engine(DATABASE_URL)
+def get_engine():
+    return create_engine(DATABASE_URL)
+
+def get_session():
+    engine = get_engine()
+    Session = sessionmaker(bind=engine)
+    return Session()
 
 config_group = click.Group('config')
 

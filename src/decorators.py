@@ -3,7 +3,7 @@ from functools import wraps
 from sentry_sdk import set_user
 from sqlalchemy.orm import Session
 
-from database import engine
+from database import get_engine
 from utils import get_user_from_token
 from views import show_error
 
@@ -14,6 +14,7 @@ def manage_session(func):
     def wrapper(*args, **kwargs):
         if kwargs.get("session"):
             return func(*args, **kwargs)
+        engine = get_engine()
         with Session(engine) as session:
             kwargs['session'] = session
             return func(*args, **kwargs)
