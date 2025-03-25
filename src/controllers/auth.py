@@ -20,7 +20,6 @@ def user_login():
         session(Session): SQLAlchemy session
     """
     session = get_session()
-    print(f"user_login session: {session.get_bind().url}")
     username, password = login_view()
     user = session.query(User).filter_by(username=username).first()
     if user and argon2.verify(password, user.password):

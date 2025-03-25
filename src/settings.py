@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -21,9 +22,12 @@ LOGS_DIR = PROJECT_DIR / 'logs'
 os.makedirs(LOGS_DIR, exist_ok=True)
 
 
+# Only initialize Sentry if we're not running tests
+is_pytest_running = 'pytest' in sys.modules
 
-sentry_sdk.init(
-    dsn="https://3aab9dd5d84c6762712bd92c4d3afc17@o4508309259747328.ingest.de.sentry.io/4508309281964112",
-    traces_sample_rate=1.0,
-    # shutdown_timeout=0,
-)
+if not is_pytest_running:
+    sentry_sdk.init(
+        dsn="https://3aab9dd5d84c6762712bd92c4d3afc17@o4508309259747328.ingest.de.sentry.io/4508309281964112",
+        traces_sample_rate=1.0,
+        # shutdown_timeout=0,
+    )

@@ -10,9 +10,5 @@ class Base(DeclarativeBase):
 from .user import User
 from .team import Team
 from .customer import Customer
-from .contract import Contract
+from .contract import Contract, ContractStatus
 from .event import Event
-
-
-
-
