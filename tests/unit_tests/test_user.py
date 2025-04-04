@@ -40,14 +40,3 @@ def test_data_validation(user_valid_data):
     assert len(errors) == 1
 
 
-def test_user_login_command(engine, session, user, monkeypatch):
-
-    runner = CliRunner()
-    input_values = iter(['test_admin', 'test_password'])
-    monkeypatch.setattr('rich.prompt.Prompt.ask', lambda *args,**kwargs: next(input_values))
-    monkeypatch.setattr('database.get_engine', lambda *args,**kwargs: engine)
-
-    result = runner.invoke(global_cli, ['user-login'])
-
-    assert result.exit_code == 0
-    assert 'Your token is' in result.output

@@ -26,6 +26,7 @@ config_group = click.Group('config')
 def dump_data(filename):
     tables = Base.metadata.tables.keys()
     data = {}
+    engine = get_engine()
     with engine.connect() as conn:
         for table in tables:
             result = conn.execute(text(f"SELECT * FROM {table}"))
@@ -41,6 +42,7 @@ def load_data(filename):
     with open(filename, 'r') as file:
         json_data = json.load(file)
 
+    engine = get_engine()
     with engine.connect() as conn:
         for table_name in ['team_table', 'user_table', 'customer_table', 'contract_table', 'event_table']:
             table = Base.metadata.tables[table_name]
@@ -54,6 +56,7 @@ def load_data(filename):
 def create_sample_data():
     """Create example data for the project"""
 
+    engine = get_engine()
     with Session(engine) as session:
 
         if not User.get_users(session):

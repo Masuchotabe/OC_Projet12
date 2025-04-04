@@ -2,7 +2,7 @@ import click
 
 from models import Customer, User
 
-from decorators import login_required, manage_session, permission_required
+from decorators import login_required, permission_required, manage_session
 from views import show_error, ask_for
 from views.customer import prompt_for_customer, display_customers
 
