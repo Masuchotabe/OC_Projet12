@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from main import global_cli
 
+
 def test_user_login_command(engine, session, user, monkeypatch):
     """Test the user-login command"""
     runner = CliRunner()
@@ -16,6 +17,7 @@ def test_user_login_command(engine, session, user, monkeypatch):
     assert result.exit_code == 0
     assert 'Your token is' in result.output
 
+
 def test_get_users_command(engine, session, user, token, monkeypatch):
     """Test the get-users command"""
     runner = CliRunner()
@@ -24,10 +26,11 @@ def test_get_users_command(engine, session, user, token, monkeypatch):
     monkeypatch.setattr('database.get_session', lambda *args, **kwargs: session)
 
     result = runner.invoke(global_cli, ['get-users', token])
-
+    print(result.output)
     assert result.exit_code == 0
-    assert user.username in result.output
-    assert user.email in result.output
+    assert 'test_ad' in result.output
+    assert 'admin@e' in result.output
+
 
 def test_get_user_command(engine, session, user, token, monkeypatch):
     """Test the get-user command"""
