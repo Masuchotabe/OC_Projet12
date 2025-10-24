@@ -4,6 +4,7 @@ import enum
 from datetime import datetime
 from typing import List, Optional
 
+from sentry_sdk import capture_message
 from sqlalchemy import Enum, String, select
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
@@ -135,6 +136,8 @@ class Contract(Base):
             contract_data(dict): Dictionary containing data to update.
         """
         for key, value in customer_data.items():
+            if key == 'status' and value == ContractStatus.SIGNED.value and self.status == ContractStatus.CREATED:
+                capture_message('New contract signed')
             if hasattr(self, key):
                 setattr(self, key, value)
 
