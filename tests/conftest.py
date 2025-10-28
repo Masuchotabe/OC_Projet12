@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 import jwt
 import pytest
+from click.testing import CliRunner
 from passlib.handlers.argon2 import argon2
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
@@ -46,6 +47,17 @@ def user(session):
     session.commit()
     session.close()
 
+
+@pytest.fixture(scope='function')
+def cli_runner():
+    """Fixture pour l'exécution des commandes CLI."""
+    return CliRunner()
+
+@pytest.fixture(scope='function', autouse=True)
+def use_test_database(engine, session, monkeypatch):
+    """Fixture pour utiliser la BDD de test"""
+    monkeypatch.setattr('database.get_engine', lambda *args,**kwargs: engine)
+    monkeypatch.setattr('database.get_session', lambda *args,**kwargs: session)
 
 @pytest.fixture(scope='function')
 def token(user):
