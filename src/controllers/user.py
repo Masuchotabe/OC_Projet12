@@ -66,7 +66,7 @@ def get_users(user, session):
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('delete_users')
+@permission_required('delete_user')
 def delete_user(user, session):
     """
     Delete a user based on their username.

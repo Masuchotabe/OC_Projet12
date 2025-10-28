@@ -34,7 +34,7 @@ def create_contract(user, session):
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_contract')
+@permission_required('read_contract')
 def get_contract(user, session):
     """
     Display a contract selected by ID.

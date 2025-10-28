@@ -37,7 +37,7 @@ def create_event(user, session):
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_event')
+@permission_required('read_event')
 def get_event(user, session):
     """
     Retrieve and display an event by ID.

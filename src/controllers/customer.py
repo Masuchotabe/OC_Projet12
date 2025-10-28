@@ -30,7 +30,7 @@ def create_customer(user, session):
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_customer')
+@permission_required('read_customer')
 def get_customer(user, session):
     """
     Retrieve and display a customer by email.
