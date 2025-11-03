@@ -23,12 +23,14 @@ def engine():
     yield engine
     # Base.metadata.drop_all(engine)
 
+
 @pytest.fixture(scope='function')
 def session(engine):
     TestingSession = sessionmaker(bind=engine)
     session = TestingSession()
     yield session
     session.close()
+
 
 @pytest.fixture(scope='function')
 def user(session):
@@ -53,11 +55,13 @@ def cli_runner():
     """Fixture pour l'exécution des commandes CLI."""
     return CliRunner()
 
+
 @pytest.fixture(scope='function', autouse=True)
 def use_test_database(engine, session, monkeypatch):
     """Fixture pour utiliser la BDD de test"""
     monkeypatch.setattr('database.get_engine', lambda *args,**kwargs: engine)
     monkeypatch.setattr('database.get_session', lambda *args,**kwargs: session)
+
 
 @pytest.fixture(scope='function')
 def token(user):
@@ -65,11 +69,13 @@ def token(user):
     token = jwt.encode(payload=payload, key=SECRET_KEY)
     yield token
 
+
 @pytest.fixture(scope='function')
 def invalid_token(user):
     payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
     token = jwt.encode(payload=payload, key=SECRET_KEY)
     yield token
+
 
 @pytest.fixture
 def customer_data(user):
@@ -108,7 +114,7 @@ def contract_data(customer):
         "total_balance": 1000.0,
         "remaining_balance": 500.0,
         "status": ContractStatus.CREATED,
-        "customer_id": customer.id
+        "customer": customer
     }
 
 

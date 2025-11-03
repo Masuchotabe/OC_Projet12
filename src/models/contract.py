@@ -41,10 +41,10 @@ class Contract(Base):
         Returns:
             str: Validated status value.
         """
-        # if value not in ContractStatus.
-        if value not in [status.value for status in ContractStatus]:
-            raise ValueError('Status not in choice')
-        return value
+        for status in ContractStatus:
+            if status.value == value:
+                return status
+        raise ValueError('Status not in choice')
 
     @classmethod
     def validate_data(cls, contract_data):
@@ -113,7 +113,6 @@ class Contract(Base):
         """
         contract = cls()
         contract._update_data(contract_data)
-
         session.add(contract)
         session.commit()
         return contract

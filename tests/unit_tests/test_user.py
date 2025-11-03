@@ -31,12 +31,26 @@ def test_create_user(session, user_valid_data):
     user_created = User.create(session, user_valid_data)
     assert user_created.personal_number == user_valid_data['personal_number']
     assert user_created.username == user_valid_data['username']
-    assert argon2.verify(password, user_created.password) == True
+    assert argon2.verify(password, user_created.password) is True
 
 
 def test_data_validation(user_valid_data):
     user_valid_data['password'] = 'password_incorrect'
     errors = User.validate_data(user_valid_data)
     assert len(errors) == 1
+
+
+def test_get_user(session, user):
+    retrieved_user = User.get_user(session, user.username)
+    assert retrieved_user == user
+
+
+def test_get_users(session, user, user_valid_data):
+    retrieved_users = User.get_users(session)
+    assert len(retrieved_users) == 1
+    User.create(session, user_valid_data)
+    retrieved_users = User.get_users(session)
+    assert len(retrieved_users) == 2
+    assert user in retrieved_users
 
 

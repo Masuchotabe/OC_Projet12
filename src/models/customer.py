@@ -27,7 +27,7 @@ class Customer(Base):
     date_modified: Mapped[datetime] = mapped_column(default=datetime.now, onupdate=datetime.now)
     sales_contact_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     sales_contact: Mapped["User"] = relationship(back_populates="customers")
-    contracts: Mapped[List["Contract"]] = relationship(back_populates="customer")
+    contracts: Mapped[List["Contract"]] = relationship(back_populates="customer", cascade="all, delete-orphan")
 
     def __str__(self):
         return self.name
