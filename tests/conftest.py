@@ -51,6 +51,63 @@ def user(session):
 
 
 @pytest.fixture(scope='function')
+def management_user(session):
+    """User dans l'équipe Management"""
+    team = session.scalar(select(Team).where(Team.name == "Management team"))
+    user_data = {
+        'username': 'manager_user',
+        'password': argon2.hash('test_password'),
+        'personal_number': '1111111111',
+        'email': 'manager@email.com',
+        'team': team,
+    }
+    user = User(**user_data)
+    session.add(user)
+    session.commit()
+    yield user
+    session.delete(user)
+    session.commit()
+
+
+@pytest.fixture(scope='function')
+def sales_user(session):
+    """User dans l'équipe Sales"""
+    team = session.scalar(select(Team).where(Team.name == "Sales team"))
+    user_data = {
+        'username': 'sales_user',
+        'password': argon2.hash('test_password'),
+        'personal_number': '2222222222',
+        'email': 'sales@email.com',
+        'team': team,
+    }
+    user = User(**user_data)
+    session.add(user)
+    session.commit()
+    yield user
+    session.delete(user)
+    session.commit()
+
+
+@pytest.fixture(scope='function')
+def support_user(session):
+    """User dans l'équipe Support"""
+    team = session.scalar(select(Team).where(Team.name == "Support team"))
+    user_data = {
+        'username': 'support_user',
+        'password': argon2.hash('test_password'),
+        'personal_number': '3333333333',
+        'email': 'support@email.com',
+        'team': team,
+    }
+    user = User(**user_data)
+    session.add(user)
+    session.commit()
+    yield user
+    session.delete(user)
+    session.commit()
+
+
+@pytest.fixture(scope='function')
 def cli_runner():
     """Fixture pour l'exécution des commandes CLI."""
     return CliRunner()
@@ -64,17 +121,49 @@ def use_test_database(engine, session, monkeypatch):
 
 
 @pytest.fixture(scope='function')
-def token(user):
-    payload = {'username':user.username, 'exp':datetime.now(tz=timezone.utc) + timedelta(hours=1)}
-    token = jwt.encode(payload=payload, key=SECRET_KEY)
-    yield token
+def token_factory():
+    """
+    Factory pour créer des tokens à la demande pour n'importe quel user.
+
+    Usage:
+        token = token_factory(user)
+        expired_token = token_factory(user, expired=True)
+        custom_token = token_factory(user, hours=24)
+    """
+    def _create_token(user, expired=False, hours=1, **extra_payload):
+        """
+        Créer un token pour un user.
+
+        Args:
+            user: L'objet User
+            expired: Si True, créer un token expiré
+            hours: Nombre d'heures avant expiration
+            **extra_payload: Données additionnelles dans le payload
+
+        Returns:
+            str: Le token JWT
+        """
+        if expired:
+            exp_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
+        else:
+            exp_time = datetime.now(tz=timezone.utc) + timedelta(hours=hours)
+
+        payload = {
+            'username': user.username,
+            'exp': exp_time,
+            **extra_payload
+        }
+
+        return jwt.encode(payload=payload, key=SECRET_KEY)
+
+    return _create_token
 
 
-@pytest.fixture(scope='function')
-def invalid_token(user):
-    payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
-    token = jwt.encode(payload=payload, key=SECRET_KEY)
-    yield token
+# @pytest.fixture(scope='function')
+# def invalid_token(user):
+#     payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
+#     token = jwt.encode(payload=payload, key=SECRET_KEY)
+#     yield token
 
 
 @pytest.fixture

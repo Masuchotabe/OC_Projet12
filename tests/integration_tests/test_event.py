@@ -3,26 +3,28 @@ from datetime import datetime, timedelta
 from main import global_cli
 
 
-def test_create_event_command(session, contract, token, monkeypatch, cli_runner):
+def test_create_event_command(session, contract, token_factory, sales_user, monkeypatch, cli_runner):
     """Test the create-event command"""
     # Mock user inputs for event creation
     start_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     end_date = (datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M")
     input_values = iter([start_date, end_date, 'Test Location', '50', 'Test notes', str(contract.id), ''])
-    monkeypatch.setattr('rich.prompt.Prompt.ask', lambda *args, **kwargs: next(input_values))
+    monkeypatch.setattr('rich.prompt.PromptBase.ask', lambda *args, **kwargs: next(input_values))
 
     # Set contract status to SIGNED for the test
     contract.status = 'SIGNED'
     session.commit()
 
+    token = token_factory(sales_user)
     result = cli_runner.invoke(global_cli, ['create-event', token])
 
     assert result.exit_code == 0
     assert 'Event created successfully' in result.output or 'created successfully' in result.output
 
 
-def test_get_events_command(event, token, cli_runner):
+def test_get_events_command(event, token_factory, user, cli_runner):
     """Test the get-events command"""
+    token = token_factory(user)
     result = cli_runner.invoke(global_cli, ['get-events', token])
 
     assert result.exit_code == 0
@@ -30,12 +32,13 @@ def test_get_events_command(event, token, cli_runner):
     assert event.location in result.output
 
 
-def test_get_event_command(event, token, monkeypatch, cli_runner):
+def test_get_event_command(event, token_factory, user, monkeypatch, cli_runner):
     """Test the get-event command"""
     # Mock user input for event ID
     input_values = iter([str(event.id)])
-    monkeypatch.setattr('rich.prompt.Prompt.ask', lambda *args, **kwargs: next(input_values))
+    monkeypatch.setattr('rich.prompt.PromptBase.ask', lambda *args, **kwargs: next(input_values))
 
+    token = token_factory(user)
     result = cli_runner.invoke(global_cli, ['get-event', token])
 
     assert result.exit_code == 0
@@ -43,12 +46,13 @@ def test_get_event_command(event, token, monkeypatch, cli_runner):
     assert event.location in result.output
 
 
-def test_get_events_with_filters_command(session, event, user, token, cli_runner):
+def test_get_events_with_filters_command(session, event, user, token_factory, cli_runner):
     """Test the get-events command with filters"""
     # Set event support contact to None for the test
     event.support_contact_id = None
     session.commit()
 
+    token = token_factory(user)
     # Test with --filter-empty-support filter
     result = cli_runner.invoke(global_cli, ['get-events', token, '--filter-empty-support'])
 

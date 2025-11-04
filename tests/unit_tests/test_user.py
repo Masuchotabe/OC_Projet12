@@ -18,7 +18,8 @@ def user_valid_data():
             }
 
 
-def test_user_login(session, user, token):
+def test_user_login(session, user, token_factory):
+    token = token_factory(user)
     token_user = get_user_from_token(token, session)
     print(token_user)
     print(user)
