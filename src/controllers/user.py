@@ -1,7 +1,7 @@
 import click
 
 
-from views import prompt_for_user, display_users, ask_for, show_error
+from views import prompt_for_user, display_users, ask_for, show_error, show_success
 from models import User, Team
 from sqlalchemy.orm import Session
 
@@ -25,7 +25,9 @@ def create_user(user, session):
     user_data = ask_for_user_data(session=session, teams_name=teams_name)
 
     if user_data:
-        User.create(session, user_data)
+        created = User.create(session, user_data)
+        display_users([created])
+        show_success("User created successfully.")
 
 
 @user_cli.command()
@@ -88,6 +90,7 @@ def delete_user(user, session):
 
     if target_user:
         target_user.delete(session)
+        show_success("User deleted successfully.")
 
 
 @user_cli.command()
@@ -111,6 +114,8 @@ def update_user(user, session):
 
     if user_data:
         target_user.update(session, user_data)
+        display_users([target_user])
+        show_success("User updated successfully.")
 
 
 @user_cli.command()
@@ -138,7 +143,9 @@ def create_admin(session):
 
     if user_data:
         user_data['team'] = Team.get_team(session, "Management team")
-        User.create(session, user_data)
+        created = User.create(session, user_data)
+        display_users([created])
+        show_success("Admin user created successfully.")
 
 
 def ask_for_user(session):

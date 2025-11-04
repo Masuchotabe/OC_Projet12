@@ -54,3 +54,12 @@ def show_error(error_message):
         error_message (str): The error message to display.
     """
     console.print(error_message, style="red")
+
+
+def show_success(message):
+    """
+    Display a success/confirmation message in green.
+    Args:
+        message (str): The message to display.
+    """
+    console.print(message, style="green")

@@ -124,3 +124,12 @@ class Customer(Base):
             if hasattr(self, key):
                 setattr(self, key, value)
 
+    def delete(self, session):
+        """
+        Delete the current customer.
+        Args:
+            session(Session): SQLAlchemy session.
+        """
+        session.delete(self)
+        session.commit()
+
