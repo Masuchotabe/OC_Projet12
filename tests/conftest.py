@@ -12,24 +12,34 @@ from settings import SECRET_KEY
 from models import Base, Team
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def engine():
     """
-    Create engine with sql lite db
-    :return(e
+    Create a fresh in-memory SQLite engine per test with isolated schema.
     """
     engine = create_engine('sqlite:///:memory:')
     Base.metadata.create_all(engine)
-    yield engine
-    # Base.metadata.drop_all(engine)
+    try:
+        yield engine
+    finally:
+        Base.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope='function')
 def session(engine):
-    TestingSession = sessionmaker(bind=engine)
-    session = TestingSession()
-    yield session
-    session.close()
+    """Session isolée par test avec rollback à la fin"""
+    connection = engine.connect()
+    transaction = connection.begin()
+
+    TestingSession = sessionmaker(bind=connection)
+    db_session = TestingSession(bind=connection)
+
+    try:
+        yield db_session
+    finally:
+        db_session.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture(scope='function')
@@ -43,11 +53,8 @@ def user(session):
     }
     user = User(**user_data)
     session.add(user)
-    session.commit()
+    session.flush()
     yield user
-    session.delete(user)
-    session.commit()
-    session.close()
 
 
 @pytest.fixture(scope='function')
@@ -63,10 +70,8 @@ def management_user(session):
     }
     user = User(**user_data)
     session.add(user)
-    session.commit()
+    session.flush()
     yield user
-    session.delete(user)
-    session.commit()
 
 
 @pytest.fixture(scope='function')
@@ -82,10 +87,8 @@ def sales_user(session):
     }
     user = User(**user_data)
     session.add(user)
-    session.commit()
+    session.flush()
     yield user
-    session.delete(user)
-    session.commit()
 
 
 @pytest.fixture(scope='function')
@@ -101,10 +104,8 @@ def support_user(session):
     }
     user = User(**user_data)
     session.add(user)
-    session.commit()
+    session.flush()
     yield user
-    session.delete(user)
-    session.commit()
 
 
 @pytest.fixture(scope='function')
@@ -159,33 +160,25 @@ def token_factory():
     return _create_token
 
 
-# @pytest.fixture(scope='function')
-# def invalid_token(user):
-#     payload = {'user_id':user.id, 'exp':datetime.now(tz=timezone.utc) - timedelta(hours=1)}
-#     token = jwt.encode(payload=payload, key=SECRET_KEY)
-#     yield token
-
-
-@pytest.fixture
-def customer_data(user):
+@pytest.fixture(scope='function')
+def customer_data(sales_user):
     return {
         "name": "Test Customer",
         "email": "test@example.com",
         "phone": "1234567890",
         "company_name": "Test Company",
-        "sales_contact_id": user.id
+        "sales_contact_id": sales_user.id
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def customer(session, customer_data):
     customer = Customer.create(session, customer_data)
     yield customer
-    session.delete(customer)
-    session.commit()
 
 
-@pytest.fixture
+
+@pytest.fixture(scope='function')
 def contract_data_for_validation(customer):
     """Fixture for testing validate_data method"""
     return {
@@ -196,7 +189,7 @@ def contract_data_for_validation(customer):
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def contract_data(customer):
     """Fixture for creating contracts"""
     return {
@@ -207,15 +200,14 @@ def contract_data(customer):
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def contract(session, contract_data):
     contract = Contract.create(session, contract_data)
     yield contract
-    session.delete(contract)
-    session.commit()
 
 
-@pytest.fixture
+
+@pytest.fixture(scope='function')
 def event_data_for_validation(contract):
     """Fixture for testing validate_data method"""
     return {
@@ -228,7 +220,7 @@ def event_data_for_validation(contract):
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def event_data(contract):
     """Fixture for creating events"""
     return {
@@ -241,9 +233,8 @@ def event_data(contract):
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def event(session, event_data):
     event = Event.create(session, event_data)
     yield event
-    session.delete(event)
-    session.commit()
+

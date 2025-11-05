@@ -88,7 +88,7 @@ def test_create_contract(session, contract_data):
 
     # Clean up
     session.delete(contract)
-    session.commit()
+    session.flush()
 
 
 def test_update_contract(session, contract):
