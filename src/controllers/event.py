@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from decorators import login_required, manage_session, permission_required
 from models.contract import ContractStatus
-from views import show_error, ask_for
+from views import show_error, ask_for, show_success
 from views.event import prompt_for_event, display_events
 
 event_cli = click.Group()
@@ -31,13 +31,15 @@ def create_event(user, session):
         return show_error("Contract must be signed.")
 
     if event_data:
-        Event.create(session, event_data)
+        created = Event.create(session, event_data)
+        display_events([created])
+        show_success("Event created successfully.")
 
 @event_cli.command()
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_event')
+@permission_required('read_event')
 def get_event(user, session):
     """
     Retrieve and display an event by ID.
@@ -83,6 +85,7 @@ def delete_event(user, session):
     target_event = ask_for_event(session)
     if target_event:
         target_event.delete(session)
+        show_success("Event deleted successfully.")
 
 @event_cli.command()
 @click.argument('token')
@@ -102,6 +105,8 @@ def update_event(user, session):
     event_data = ask_for_event_data(session, user, target_event)
     if event_data:
         target_event.update(session, event_data)
+        display_events([target_event])
+        show_success("Event updated successfully.")
 
 def ask_for_event(session):
     """
@@ -144,9 +149,9 @@ def ask_for_event_data(session, user, event=None):
         elif not event and not event_data['contract_id']:
             errors.append('You must enter a contract ID.')
 
-        if event_data['support_contact_username'] and not User.get_user(session, event_data['support_contact_username']):
+        if event_data.get('support_contact_username') and not User.get_user(session, event_data['support_contact_username']):
             errors.append('Wrong username for support contact.')
-        elif event_data['support_contact_username']:
+        elif event_data.get('support_contact_username'):
             event_data['support_contact'] = User.get_user(session, event_data['support_contact_username'])
 
         if not errors:

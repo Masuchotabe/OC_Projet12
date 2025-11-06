@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from decorators import login_required, manage_session, permission_required
 from models.contract import ContractStatus
-from views import show_error, ask_for
+from views import show_error, ask_for, show_success
 from views.contract import display_contracts, prompt_for_contract
 
 contract_cli = click.Group()
@@ -28,13 +28,15 @@ def create_contract(user, session):
     contract_data = ask_for_contract_data(session)
 
     if contract_data:
-        Contract.create(session, contract_data)
+        created = Contract.create(session, contract_data)
+        display_contracts([created])
+        show_success("Contract created successfully.")
 
 @contract_cli.command()
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_contract')
+@permission_required('read_contract')
 def get_contract(user, session):
     """
     Display a contract selected by ID.
@@ -82,6 +84,7 @@ def delete_contract(user, session):
 
     if target_contract:
         target_contract.delete(session)
+        show_success("Contract deleted successfully.")
 
 @contract_cli.command()
 @click.argument('token')
@@ -107,6 +110,8 @@ def update_contract(user, session):
     contract_data = ask_for_contract_data(session, target_contract)
     if contract_data:
         target_contract.update(session, contract_data)
+        display_contracts([target_contract])
+        show_success("Contract updated successfully.")
 
 def ask_for_contract(session):
     """

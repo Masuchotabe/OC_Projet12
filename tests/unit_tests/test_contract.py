@@ -8,7 +8,7 @@ from models import Contract, ContractStatus, Customer, User
 def test_validate_status_valid():
     """Test validate_status with valid status"""
     valid_status = ContractStatus.CREATED.value
-    assert Contract.validate_status(valid_status) == valid_status
+    assert Contract.validate_status(valid_status) == ContractStatus.CREATED
 
 
 def test_validate_status_invalid():
@@ -84,11 +84,11 @@ def test_create_contract(session, contract_data):
     assert contract.total_balance == contract_data["total_balance"]
     assert contract.remaining_balance == contract_data["remaining_balance"]
     assert contract.status == contract_data["status"]
-    assert contract.customer_id == contract_data["customer_id"]
+    assert contract.customer_id == contract_data["customer"].id
 
     # Clean up
     session.delete(contract)
-    session.commit()
+    session.flush()
 
 
 def test_update_contract(session, contract):

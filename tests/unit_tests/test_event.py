@@ -82,7 +82,7 @@ def test_get_events_filter_empty(session, event):
     """Test get_events method with filter_empty=True"""
     # First ensure the event has no support contact
     event.support_contact_id = None
-    session.commit()
+    session.flush()
 
     events = Event.get_events(session, filter_empty=True)
     assert len(events) >= 1
@@ -93,7 +93,7 @@ def test_get_events_user_only(session, event, user):
     """Test get_events method with user_only=True"""
     # First assign the user as support contact
     event.support_contact_id = user.id
-    session.commit()
+    session.flush()
 
     events = Event.get_events(session, user=user, user_only=True)
     assert len(events) >= 1
@@ -125,7 +125,7 @@ def test_create_event(session, event_data):
 
     # Clean up
     session.delete(event)
-    session.commit()
+    session.flush()
 
 
 def test_update_event(session, event):

@@ -3,7 +3,7 @@ import click
 from models import Customer, User
 
 from decorators import login_required, permission_required, manage_session
-from views import show_error, ask_for
+from views import show_error, ask_for, show_success
 from views.customer import prompt_for_customer, display_customers
 
 customer_cli = click.Group()
@@ -24,13 +24,15 @@ def create_customer(user, session):
     customer_data['sales_contact'] = user
 
     if customer_data:
-        Customer.create(session, customer_data)
+        created = Customer.create(session, customer_data)
+        display_customers([created])
+        show_success("Customer created successfully.")
 
 @customer_cli.command()
 @click.argument('token')
 @manage_session
 @login_required
-@permission_required('get_customer')
+@permission_required('read_customer')
 def get_customer(user, session):
     """
     Retrieve and display a customer by email.
@@ -71,7 +73,8 @@ def delete_customer(user, session):
     """
     target_customer = ask_for_customer(session)
     if target_customer:
-        target_customer.delete()
+        target_customer.delete(session)
+        show_success("Customer deleted successfully.")
 
 @customer_cli.command()
 @click.argument('token')
@@ -91,6 +94,8 @@ def update_customer(user, session):
     customer_data = ask_for_customer_data(session, target_customer)
     if customer_data:
         target_customer.update(session, customer_data)
+        display_customers([target_customer])
+        show_success("Customer updated successfully.")
 
 def ask_for_customer(session):
     """

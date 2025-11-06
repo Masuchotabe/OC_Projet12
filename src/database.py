@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 import click
-from sqlalchemy import create_engine, inspect, text, insert
+from sqlalchemy import create_engine, text, insert
 from sqlalchemy.orm import Session, sessionmaker
 
 from models import Base, User, Contract, Customer, Event
@@ -11,15 +11,19 @@ from settings import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_H
 
 DATABASE_URL = f'mysql+mysqldb://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}/{DATABASE_NAME}'
 
+
 def get_engine():
     return create_engine(DATABASE_URL)
 
+
 def get_session():
     engine = get_engine()
-    Session = sessionmaker(bind=engine)
-    return Session()
+    session_factory = sessionmaker(bind=engine)
+    return session_factory()
+
 
 config_group = click.Group('config')
+
 
 @config_group.command()
 @click.option('--filename', type=click.Path(exists=False, dir_okay=False), default='fixtures/database_dump.json')
@@ -34,6 +38,7 @@ def dump_data(filename):
 
     with open(filename, 'w') as f:
         json.dump(data, f)
+
 
 @config_group.command()
 @click.option('--filename', type=click.Path(exists=True, dir_okay=False), default='fixtures/init_data.json')
@@ -52,6 +57,7 @@ def load_data(filename):
             conn.execute(sql_query)
             conn.commit()
 
+
 @config_group.command()
 def create_sample_data():
     """Create example data for the project"""
@@ -69,7 +75,7 @@ def create_sample_data():
                     'email': 'tmanagement@epicevent.com',
                     'password': 'P@ssw0rd01',
                     'phone': '',
-                    'team_id': '1', # management team
+                    'team_id': '1',  # management team
                 },
                 {
                     'username': 'jsales',
@@ -79,7 +85,7 @@ def create_sample_data():
                     'email': 'jsales@epicevent.com',
                     'password': 'P@ssw0rd01',
                     'phone': '',
-                    'team_id': '2', # sales team
+                    'team_id': '2',  # sales team
                 },
                 {
                     'username': 'msupports',
@@ -89,7 +95,7 @@ def create_sample_data():
                     'email': 'msupports@epicevent.com',
                     'password': 'P@ssw0rd01',
                     'phone': '',
-                    'team_id': '3', # support team
+                    'team_id': '3',  # support team
                 },
                 {
                     'username': 'porth',
@@ -159,7 +165,7 @@ def create_sample_data():
             for customer_data in customer_to_create:
                 Customer.create(session, customer_data)
 
-        if not Contract.get_contracts(session):
+        if not Contract.get_contracts(session, not_signed=False, unpaid_contracts=False):
             contract_to_create = [
                 {
                     'total_balance': '2500',

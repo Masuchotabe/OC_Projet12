@@ -71,10 +71,6 @@ def test_create_customer(session, customer_data):
     assert customer.date_created is not None
     assert customer.date_modified is not None
 
-    # Clean up
-    session.delete(customer)
-    session.commit()
-
 
 def test_update_customer(session, customer):
     """Test update method"""
