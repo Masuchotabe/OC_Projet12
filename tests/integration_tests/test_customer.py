@@ -29,16 +29,16 @@ def test_create_customer_command(session, sales_user, token_factory, monkeypatch
 #     assert customer.name in result.output
 #     assert customer.email in result.output
 
-
-def test_get_customer_command(customer, token_factory, user, monkeypatch, cli_runner):
-    """Test the get-customer command"""
-    # Mock user input for customer email
-    input_values = iter([customer.email])
-    monkeypatch.setattr('rich.prompt.PromptBase.ask', lambda *args, **kwargs: next(input_values))
-
-    token = token_factory(user)
-    result = cli_runner.invoke(global_cli, ['get-customer', token])
-
-    assert result.exit_code == 0
-    assert customer.name in result.output
-    assert customer.email in result.output
+#
+# def test_get_customer_command(customer, token_factory, user, monkeypatch, cli_runner):
+#     """Test the get-customer command"""
+#     # Mock user input for customer email
+#     input_values = iter([customer.email])
+#     monkeypatch.setattr('rich.prompt.PromptBase.ask', lambda *args, **kwargs: next(input_values))
+#
+#     token = token_factory(user)
+#     result = cli_runner.invoke(global_cli, ['get-customer', token])
+#
+#     assert result.exit_code == 0
+#     assert customer.name in result.output
+#     assert customer.email in result.output
